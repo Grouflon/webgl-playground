@@ -10,6 +10,4 @@ define([
 	, function (Renderer)
     {
 	    Renderer.init(document.getElementById("glcanvas"));
-	    Renderer.clear();
-	    Renderer.draw();
 	});

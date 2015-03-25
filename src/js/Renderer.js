@@ -11,6 +11,25 @@ define([
 	{
 		var Renderer = {};
 
+		var rTri = 0;
+		var rSquare = 0;
+		var lastTime = 0;
+
+		function degToRad(degrees) {
+			return degrees * Math.PI / 180;
+		}
+
+		function animate() {
+			var timeNow = new Date().getTime();
+			if (lastTime != 0) {
+				var elapsed = timeNow - lastTime;
+
+				rTri += (90 * elapsed) / 1000.0;
+				rSquare += (75 * elapsed) / 1000.0;
+			}
+			lastTime = timeNow;
+		}
+
 		Renderer.init = function (canvas)
 		{
 			this._mvMatrix = mat4.create();
@@ -22,6 +41,16 @@ define([
 
 			this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
 			this._gl.enable(this._gl.DEPTH_TEST);
+
+			var tick = function() {
+				requestAnimationFrame(tick);
+
+				Renderer.clear();
+				Renderer.draw();
+				animate();
+			};
+
+			tick();
 		};
 
 
@@ -40,12 +69,19 @@ define([
 			mat4.identity(this._mvMatrix);
 			mat4.translate(this._mvMatrix, [-1.5, 0.0, -7.0]);
 
+			this._mvPushMatrix();
+			mat4.rotate(this._mvMatrix, degToRad(rTri), [0, 1, 0]);
+
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleVertexPositionBuffer);
 			gl.vertexAttribPointer(this._shaderProgram.vertexPositionAttribute, this._triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleVertexColorBuffer);
 			gl.vertexAttribPointer(this._shaderProgram.vertexColorAttribute, this._triangleVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 			this._setMatrixUniforms();
 			gl.drawArrays(gl.TRIANGLES, 0, this._triangleVertexPositionBuffer.numItems);
+
+			this._mvPopMatrix();
+			this._mvPushMatrix();
+			mat4.rotate(this._mvMatrix, degToRad(rSquare), [1, 0, 0]);
 
 			mat4.translate(this._mvMatrix, [3.0, 0.0, 0.0]);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._squareVertexPositionBuffer);
@@ -54,6 +90,8 @@ define([
 			gl.vertexAttribPointer(this._shaderProgram.vertexColorAttribute, this._squareVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 			this._setMatrixUniforms();
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, this._squareVertexPositionBuffer.numItems);
+
+			this._mvPopMatrix();
 		};
 
 
@@ -201,6 +239,23 @@ define([
 			this._gl.uniformMatrix4fv(this._shaderProgram.mvMatrixUniform, false, this._mvMatrix);
 		};
 
+		Renderer._mvPushMatrix = function ()
+		{
+			var copy = mat4.create();
+			mat4.set(this._mvMatrix, copy);
+			this._mvMatrixStack.push(copy);
+		};
+
+		Renderer._mvPopMatrix = function ()
+		{
+			if (this._mvMatrixStack.length == 0)
+			{
+				throw "Invalid popMatrix";
+			}
+			this._mvMatrix = this._mvMatrixStack.pop();
+		};
+
+		Renderer._mvMatrixStack = [];
 		Renderer._mvMatrix = null;
 		Renderer._pMatrix = null;
 
