@@ -8,22 +8,23 @@ define([
 	]
 	, function ()
 	{
-		function RenderContext(gl, mode, vertices, colors) {
-			if (vertices.length / this._vertexSize != colors.length / this._colorSize)
-				throw "Invalid render context";
-			else {
-				this._mode = mode;
-				this._vertices = [].concat(vertices);
-				this._colors = [].concat(colors);
+		function RenderContext(gl, mode, vertices, colors, indexes) {
+			this._mode = mode;
+			this._vertices = [].concat(vertices);
+			this._colors = [].concat(colors);
+			this._indexes = [].concat(indexes);
 
-				this._vertexBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertices), gl.STATIC_DRAW);
+			this._vertexBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertices), gl.STATIC_DRAW);
 
-				this._colorBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, this._colorBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._colors), gl.STATIC_DRAW);
-			}
+			this._colorBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._colorBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._colors), gl.STATIC_DRAW);
+
+			this._indexBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this._indexes), gl.STATIC_DRAW);
 		}
 
 		Object.defineProperty(RenderContext.prototype, "vertexBuffer", {
@@ -32,8 +33,11 @@ define([
 		Object.defineProperty(RenderContext.prototype, "colorBuffer", {
 			get: function() { return this._colorBuffer; }
 		});
+		Object.defineProperty(RenderContext.prototype, "indexBuffer", {
+			get: function() { return this._indexBuffer; }
+		});
 		Object.defineProperty(RenderContext.prototype, "size", {
-			get: function() { return this._vertices.length / this._vertexSize; }
+			get: function() { return this._indexes.length; }
 		});
 		Object.defineProperty(RenderContext.prototype, "vertexSize", {
 			get: function() { return this._vertexSize; }
@@ -49,9 +53,11 @@ define([
 		RenderContext.prototype._colorSize = 4;
 		RenderContext.prototype._vertices = null;
 		RenderContext.prototype._colors = null;
+		RenderContext.prototype._indexes = null;
 		RenderContext.prototype._mode = null;
 		RenderContext.prototype._vertexBuffer = null;
 		RenderContext.prototype._colorBuffer = null;
+		RenderContext.prototype._indexBuffer = null;
 
 		return RenderContext;
 	});

@@ -21,35 +21,109 @@ define([
 	    rdr.identity();
 	    rdr.perspective(45, canvas.width / canvas.height, 0.1, 100.0);
 
-	    var rTri = 0;
-	    var rSquare = 0;
+	    var rPyramid = 0;
+	    var rCube = 0;
 	    var lastTime = 0;
 
-		var triangle = new RenderContext(device.renderer.gl, device.renderer.gl.TRIANGLES,
+		var pyramid = new RenderContext(device.renderer.gl, device.renderer.gl.TRIANGLES,
 		[
 			0.0,  1.0,  0.0,
-			-1.0, -1.0,  0.0,
-			1.0, -1.0,  0.0
+			-1.0, -1.0,  1.0,
+			1.0, -1.0,  1.0,
+			1.0, -1.0,  -1.0,
+			-1.0, -1.0, -1.0
 		],
 		[
 			1.0, 0.0, 0.0, 1.0,
 			0.0, 1.0, 0.0, 1.0,
+			0.0, 0.0, 1.0, 1.0,
+			0.0, 1.0, 0.0, 1.0,
 			0.0, 0.0, 1.0, 1.0
+		],
+		[
+			0, 1, 2,
+			0, 2, 3,
+			0, 3, 4,
+			0, 4, 1
 		]);
 
-	    var square = new RenderContext(device.renderer.gl, device.renderer.gl.TRIANGLE_STRIP,
+	    var cube = new RenderContext(device.renderer.gl, device.renderer.gl.TRIANGLES,
 		    [
-			    1.0,  1.0,  0.0,
-			    -1.0,  1.0,  0.0,
-			    1.0, -1.0,  0.0,
-			    -1.0, -1.0,  0.0
+			    // FRONT
+			    -1.0, -1.0,  1.0,
+			     1.0, -1.0,  1.0,
+			     1.0,  1.0,  1.0,
+			    -1.0,  1.0,  1.0,
+
+			    // BACK
+			    -1.0, -1.0, -1.0,
+			     1.0, -1.0, -1.0,
+			     1.0,  1.0, -1.0,
+			    -1.0,  1.0, -1.0,
+
+			    // TOP
+			    -1.0,  1.0, -1.0,
+			     1.0,  1.0, -1.0,
+			     1.0,  1.0,  1.0,
+			    -1.0,  1.0,  1.0,
+
+			    // BOTTOM
+			    -1.0, -1.0, -1.0,
+			     1.0, -1.0, -1.0,
+			     1.0, -1.0,  1.0,
+			    -1.0, -1.0,  1.0,
+
+			    // RIGHT
+			     1.0, -1.0, -1.0,
+			     1.0,  1.0, -1.0,
+			     1.0,  1.0,  1.0,
+			     1.0, -1.0,  1.0,
+
+			    // LEFT
+			    -1.0, -1.0, -1.0,
+			    -1.0,  1.0, -1.0,
+			    -1.0,  1.0,  1.0,
+			    -1.0, -1.0,  1.0
 		    ],
 		    [
-			    0.5, 0.5, 1.0, 1.0,
-			    0.5, 0.5, 1.0, 1.0,
-			    0.5, 0.5, 1.0, 1.0,
-			    0.5, 0.5, 1.0, 1.0
-		    ]);
+			    1.0, 0.0, 0.0, 1.0,
+			    1.0, 0.0, 0.0, 1.0,
+			    1.0, 0.0, 0.0, 1.0,
+			    1.0, 0.0, 0.0, 1.0,
+
+			    1.0, 1.0, 0.0, 1.0,
+			    1.0, 1.0, 0.0, 1.0,
+			    1.0, 1.0, 0.0, 1.0,
+			    1.0, 1.0, 0.0, 1.0,
+
+			    0.0, 1.0, 0.0, 1.0,
+			    0.0, 1.0, 0.0, 1.0,
+			    0.0, 1.0, 0.0, 1.0,
+			    0.0, 1.0, 0.0, 1.0,
+
+			    1.0, 0.5, 0.5, 1.0,
+			    1.0, 0.5, 0.5, 1.0,
+			    1.0, 0.5, 0.5, 1.0,
+			    1.0, 0.5, 0.5, 1.0,
+
+			    1.0, 0.0, 1.0, 1.0,
+			    1.0, 0.0, 1.0, 1.0,
+			    1.0, 0.0, 1.0, 1.0,
+			    1.0, 0.0, 1.0, 1.0,
+
+			    0.0, 0.0, 1.0, 1.0,
+			    0.0, 0.0, 1.0, 1.0,
+			    0.0, 0.0, 1.0, 1.0,
+			    0.0, 0.0, 1.0, 1.0
+		    ],
+	        [
+		        0, 1, 2,    0, 2, 3,
+		        4, 5, 6,    4, 6, 7,
+		        8, 9, 10,   8, 10, 11,
+		        12, 13, 14,   12, 14, 15,
+		        16, 17, 18,   16, 18, 19,
+		        20, 21, 22,   20, 22, 23
+	        ]);
 
 	    device.update = function()
 	    {
@@ -57,8 +131,8 @@ define([
 		    if (lastTime != 0) {
 			    var elapsed = timeNow - lastTime;
 
-			    rTri += (90 * elapsed) / 1000.0;
-			    rSquare += (75 * elapsed) / 1000.0;
+			    rPyramid += (90 * elapsed) / 1000.0;
+			    rCube -= (75 * elapsed) / 1000.0;
 		    }
 		    lastTime = timeNow;
 	    };
@@ -69,13 +143,13 @@ define([
 		    rdr.identity();
 		    rdr.pushMatrix();
 		    rdr.translate(-1.5, 0.0, -7.0);
-		    rdr.rotate(Utils.degToRad(rTri), [0, 1, 0]);
-		    rdr.draw(triangle);
+		    rdr.rotate(Utils.degToRad(rPyramid), [0, 1, 0]);
+		    rdr.draw(pyramid);
 		    rdr.popMatrix();
 		    rdr.translate(1.5, 0.0, -7.0);
-		    rdr.rotate(Utils.degToRad(rSquare), [1, 0, 0]);
+		    rdr.rotate(Utils.degToRad(rCube), [1, 1, 1]);
 		    mat4.translate(3.0, 0.0, 0.0);
-		    rdr.draw(square);
+		    rdr.draw(cube);
 	    };
 
 	    device.start();

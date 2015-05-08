@@ -68,9 +68,12 @@ define([
 			gl.vertexAttribPointer(this._shaderProgram.vertexPositionAttribute, renderContext.vertexSize, gl.FLOAT, false, 0, 0);
 			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.colorBuffer);
 			gl.vertexAttribPointer(this._shaderProgram.vertexColorAttribute, renderContext.colorSize, gl.FLOAT, false, 0, 0);
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderContext.indexBuffer);
+
 			gl.uniformMatrix4fv(this._shaderProgram.pMatrixUniform, false, this._stacks[Renderer.MatrixMode.PROJECTION][0]);
 			gl.uniformMatrix4fv(this._shaderProgram.mvMatrixUniform, false, this._stacks[Renderer.MatrixMode.MODELVIEW][0]);
-			gl.drawArrays(renderContext.mode, 0, renderContext.size);
+
+			gl.drawElements(renderContext.mode, renderContext.size, gl.UNSIGNED_SHORT, 0);
 		};
 
 		Renderer.prototype.clear = function()
