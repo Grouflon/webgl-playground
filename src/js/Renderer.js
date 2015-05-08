@@ -5,103 +5,90 @@ if (typeof define !== 'function') {
  * Renderer
  * ===================================*/
 define([
+		"Utils",
 		"glMatrix-0.9.5.min.js"
 	]
-	, function ()
+	, function (Utils)
 	{
-		var Renderer = {};
-
-		var rTri = 0;
-		var rSquare = 0;
-		var lastTime = 0;
-
-		function degToRad(degrees) {
-			return degrees * Math.PI / 180;
-		}
-
-		function animate() {
-			var timeNow = new Date().getTime();
-			if (lastTime != 0) {
-				var elapsed = timeNow - lastTime;
-
-				rTri += (90 * elapsed) / 1000.0;
-				rSquare += (75 * elapsed) / 1000.0;
-			}
-			lastTime = timeNow;
-		}
-
-		Renderer.init = function (canvas)
+		function Renderer(canvas, fsId, vsId)
 		{
-			this._mvMatrix = mat4.create();
-			this._pMatrix = mat4.create();
+			console.log("Renderer created");
+			this._stacks = {};
+			this._stacks[Renderer.MatrixMode.MODELVIEW] = [mat4.create()];
+			this._stacks[Renderer.MatrixMode.PROJECTION] = [mat4.create()];
+			this._matrixMode = Renderer.MatrixMode.MODELVIEW;
 
 			this._initGL(canvas);
-			this._initShaders();
-			this._initBuffers();
+			this._initShaders(fsId, vsId);
 
 			this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
 			this._gl.enable(this._gl.DEPTH_TEST);
+		}
 
-			var tick = function() {
-				requestAnimationFrame(tick);
+		Renderer.MatrixMode = {
+			MODELVIEW : 0,
+			PROJECTION : 1
+		};
 
-				Renderer.clear();
-				Renderer.draw();
-				animate();
-			};
+		Renderer.prototype.setMatrixMode = function(value)
+		{
+			this._matrixMode = value;
+		};
 
-			tick();
+		Renderer.prototype.setViewport = function(x, y, w, h)
+		{
+			this._gl.viewport(x, y, w, h);
+		};
+
+		Renderer.prototype.identity = function()                            { mat4.identity(this._currentMatrix); };
+		Renderer.prototype.translate = function(x, y, z)                    { mat4.translate(this._currentMatrix, [x, y, z]); };
+		Renderer.prototype.rotate = function(radAngle, axis)                { mat4.rotate(this._currentMatrix, radAngle, axis); };
+		Renderer.prototype.scale = function(x, y, z)                        { mat4.scale(this._currentMatrix, x, y, z); };
+		Renderer.prototype.perspective = function(fov, ratio, zNear, zFar)  { mat4.perspective(fov, ratio, zNear, zFar, this._currentMatrix) };
+
+		Renderer.prototype.pushMatrix = function()
+		{
+			this._stacks[this._matrixMode].unshift(mat4.create(this._currentMatrix));
+		};
+
+		Renderer.prototype.popMatrix = function()
+		{
+			if (this._stacks[this._matrixMode].length > 1)
+				this._stacks[this._matrixMode].shift();
+			else
+				throw "Renderer error: Can't empty stack."
 		};
 
 
-		Renderer.clear = function ()
+		Renderer.prototype.draw = function(renderContext)
+		{
+			var gl = this._gl;
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.vertexBuffer);
+			gl.vertexAttribPointer(this._shaderProgram.vertexPositionAttribute, renderContext.vertexSize, gl.FLOAT, false, 0, 0);
+			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.colorBuffer);
+			gl.vertexAttribPointer(this._shaderProgram.vertexColorAttribute, renderContext.colorSize, gl.FLOAT, false, 0, 0);
+			gl.uniformMatrix4fv(this._shaderProgram.pMatrixUniform, false, this._stacks[Renderer.MatrixMode.PROJECTION][0]);
+			gl.uniformMatrix4fv(this._shaderProgram.mvMatrixUniform, false, this._stacks[Renderer.MatrixMode.MODELVIEW][0]);
+			gl.drawArrays(renderContext.mode, 0, renderContext.size);
+		};
+
+		Renderer.prototype.clear = function()
 		{
 			this._gl.clear(this._gl.COLOR_BUFFER_BIT| this._gl.DEPTH_BUFFER_BIT);
 		};
 
+		Object.defineProperty(Renderer.prototype, "gl", {
+			get: function() { return this._gl; }
+		});
 
-		Renderer.draw = function()
-		{
-			var gl = this._gl;
-
-			gl.viewport(0, 0, this._viewportSize.x, this._viewportSize.y);
-			mat4.perspective(45, this._viewportSize.x / this._viewportSize.y, 0.1, 100.0, this._pMatrix);
-			mat4.identity(this._mvMatrix);
-			mat4.translate(this._mvMatrix, [-1.5, 0.0, -7.0]);
-
-			this._mvPushMatrix();
-			mat4.rotate(this._mvMatrix, degToRad(rTri), [0, 1, 0]);
-
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleVertexPositionBuffer);
-			gl.vertexAttribPointer(this._shaderProgram.vertexPositionAttribute, this._triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleVertexColorBuffer);
-			gl.vertexAttribPointer(this._shaderProgram.vertexColorAttribute, this._triangleVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-			this._setMatrixUniforms();
-			gl.drawArrays(gl.TRIANGLES, 0, this._triangleVertexPositionBuffer.numItems);
-
-			this._mvPopMatrix();
-			this._mvPushMatrix();
-			mat4.rotate(this._mvMatrix, degToRad(rSquare), [1, 0, 0]);
-
-			mat4.translate(this._mvMatrix, [3.0, 0.0, 0.0]);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._squareVertexPositionBuffer);
-			gl.vertexAttribPointer(this._shaderProgram.vertexPositionAttribute, this._squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._squareVertexColorBuffer);
-			gl.vertexAttribPointer(this._shaderProgram.vertexColorAttribute, this._squareVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-			this._setMatrixUniforms();
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, this._squareVertexPositionBuffer.numItems);
-
-			this._mvPopMatrix();
-		};
-
-
-		Renderer._initGL = function(canvas)
+		Renderer.prototype._initGL = function(canvas)
 		{
 			try
 			{
 				this._gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-				this._viewportSize.x = canvas.width;
-				this._viewportSize.y = canvas.height;
+				this.setViewport(0, 0, canvas.width, canvas.height);
+				console.log("Renderer initialized");
 			}
 			catch (e)
 			{
@@ -109,12 +96,11 @@ define([
 			}
 		};
 
-
-		Renderer._initShaders = function()
+		Renderer.prototype._initShaders = function(fsId, vsId)
 		{
 			var gl = this._gl;
-			var fragmentShader = this._getShader("shader-fs");
-			var vertexShader = this._getShader("shader-vs");
+			var fragmentShader = Utils.getShader(gl, fsId);
+			var vertexShader = Utils.getShader(gl, vsId);
 
 			var shaderProgram = gl.createProgram();
 			gl.attachShader(shaderProgram, vertexShader);
@@ -139,135 +125,14 @@ define([
 			this._shaderProgram = shaderProgram;
 		};
 
+		Object.defineProperty(Renderer.prototype, "_currentMatrix", {
+			get: function() { return this._stacks[this._matrixMode][0]; }
+		});
 
-		Renderer._initBuffers = function()
-		{
-			var gl = this._gl;
-			// TRIANGLE
-			this._triangleVertexPositionBuffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleVertexPositionBuffer);
-			var vertices = [
-				0.0,  1.0,  0.0,
-				-1.0, -1.0,  0.0,
-				1.0, -1.0,  0.0
-			];
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-			this._triangleVertexPositionBuffer.itemSize = 3;
-			this._triangleVertexPositionBuffer.numItems = 3;
+		Renderer.prototype._gl = null;
+		Renderer.prototype._shaderProgram = null;
 
-			this._triangleVertexColorBuffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._triangleVertexColorBuffer);
-			var colors = [
-				1.0, 0.0, 0.0, 1.0,
-				0.0, 1.0, 0.0, 1.0,
-				0.0, 0.0, 1.0, 1.0
-			];
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-			this._triangleVertexColorBuffer.itemSize = 4;
-			this._triangleVertexColorBuffer.numItems = 3;
-
-			// SQUARE
-			this._squareVertexPositionBuffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._squareVertexPositionBuffer);
-			vertices = [
-				1.0,  1.0,  0.0,
-				-1.0,  1.0,  0.0,
-				1.0, -1.0,  0.0,
-				-1.0, -1.0,  0.0
-			];
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-			this._squareVertexPositionBuffer.itemSize = 3;
-			this._squareVertexPositionBuffer.numItems = 4;
-
-			this._squareVertexColorBuffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._squareVertexColorBuffer);
-			colors = [];
-			for (var i = 0; i < 4; ++i)
-			{
-				colors = colors.concat([0.5, 0.5, 1.0, 1.0]);
-			}
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-			this._squareVertexColorBuffer.itemSize = 4;
-			this._squareVertexColorBuffer.numItems = 4;
-		};
-
-		Renderer._getShader = function(id)
-		{
-			var gl = this._gl;
-			var shaderScript = document.getElementById(id);
-			if (!shaderScript) {
-				return null;
-			}
-
-			var str = "";
-			var k = shaderScript.firstChild;
-			while (k)
-			{
-				if (k.nodeType == k.TEXT_NODE)
-				{
-					str += k.textContent;
-				}
-				k = k.nextSibling;
-			}
-
-			var shader;
-			if (shaderScript.type == "x-shader/x-fragment")
-			{
-				shader = gl.createShader(gl.FRAGMENT_SHADER);
-			}
-			else if (shaderScript.type == "x-shader/x-vertex")
-			{
-				shader = gl.createShader(gl.VERTEX_SHADER);
-			}
-			else return null;
-
-			gl.shaderSource(shader, str);
-			gl.compileShader(shader);
-
-			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
-			{
-				console.error(gl.getShaderInfoLog(shader));
-				return null;
-			}
-
-			return shader;
-		};
-
-		Renderer._setMatrixUniforms = function ()
-		{
-			this._gl.uniformMatrix4fv(this._shaderProgram.pMatrixUniform, false, this._pMatrix);
-			this._gl.uniformMatrix4fv(this._shaderProgram.mvMatrixUniform, false, this._mvMatrix);
-		};
-
-		Renderer._mvPushMatrix = function ()
-		{
-			var copy = mat4.create();
-			mat4.set(this._mvMatrix, copy);
-			this._mvMatrixStack.push(copy);
-		};
-
-		Renderer._mvPopMatrix = function ()
-		{
-			if (this._mvMatrixStack.length == 0)
-			{
-				throw "Invalid popMatrix";
-			}
-			this._mvMatrix = this._mvMatrixStack.pop();
-		};
-
-		Renderer._mvMatrixStack = [];
-		Renderer._mvMatrix = null;
-		Renderer._pMatrix = null;
-
-		Renderer._triangleVertexPositionBuffer = null;
-		Renderer._triangleVertexColorBuffer = null;
-		Renderer._squareVertexPositionBuffer = null;
-		Renderer._squareVertexColorBuffer = null;
-
-		Renderer._viewportSize = { x : 0.0, y : 0.0 };
-
-		Renderer._gl = null;
-		Renderer._shaderProgram = null;
+		Renderer.prototype._stacks = null;
 
 		return Renderer;
 	});

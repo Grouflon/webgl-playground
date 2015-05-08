@@ -3,6 +3,9 @@ module.exports = function(grunt) {
     grunt.initConfig({
 
         clean: {
+	        options : {
+		        force : true
+	        },
             // Cleaning public directory
             public: [
                 "public/**/*",
