@@ -66,8 +66,17 @@ define([
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.vertexBuffer);
 			gl.vertexAttribPointer(this._shaderProgram.vertexPositionAttribute, renderContext.vertexSize, gl.FLOAT, false, 0, 0);
+
 			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.colorBuffer);
 			gl.vertexAttribPointer(this._shaderProgram.vertexColorAttribute, renderContext.colorSize, gl.FLOAT, false, 0, 0);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.textureCoordBuffer);
+			gl.vertexAttribPointer(this._shaderProgram.textureCoordAttribute, renderContext.textureCoordSize, gl.FLOAT, false, 0, 0);
+
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, renderContext.texture.glTexture);
+			gl.uniform1i(this._shaderProgram.samplerUniform, 0);
+
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderContext.indexBuffer);
 
 			gl.uniformMatrix4fv(this._shaderProgram.pMatrixUniform, false, this._stacks[Renderer.MatrixMode.PROJECTION][0]);
@@ -122,8 +131,12 @@ define([
 			shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
 			gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
+			shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
 			shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 			shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+			shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
 
 			this._shaderProgram = shaderProgram;
 		};
