@@ -35,6 +35,9 @@ define([
 			this._running = false;
 		};
 
+		Device.prototype.preDraw = function(gl) {};
+		Device.prototype.postDraw = function(gl) {};
+
 		Device.prototype.update = function() {
 			var thisFrameTime = Date.now();
 			this._elapsed = thisFrameTime - this._lastFrameTime;
@@ -47,10 +50,12 @@ define([
 			}.bind(this));
 
 			// DRAW
+			this.preDraw(this.renderer.gl);
 			this._renderer.clear();
 			this._gameObjects.forEach(function(element) {
 				element.draw(this.renderer.gl);
 			}.bind(this));
+			this.postDraw(this.renderer.gl);
 
 			// CLEAN
 			while (this._removedGameObjects.length)
