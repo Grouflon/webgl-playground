@@ -24,6 +24,7 @@ define([
 		Device.prototype.start = function() {
 			this._running = true;
 			this._lastFrameTime = Date.now();
+			this._globalTime = 0;
 
 			var loop = function ()
 			{
@@ -43,6 +44,7 @@ define([
 			var thisFrameTime = Date.now();
 			this._elapsed = thisFrameTime - this._lastFrameTime;
 			this._elapsed *= 0.001;
+			this._globalTime += this._elapsed;
 			this._lastFrameTime = thisFrameTime;
 
 			// UPDATE
@@ -92,6 +94,10 @@ define([
 			get : function() { return this._canvas.height; }
 		});
 
+		Object.defineProperty(Device.prototype, "globalTime", {
+			get : function() { return this._globalTime; }
+		});
+
 		Device.prototype._canvas = null;
 		Device.prototype._renderer = null;
 
@@ -99,6 +105,7 @@ define([
 		Device.prototype._removedGameObjects = null;
 		Device.prototype._running = false;
 		Device.prototype._lastFrameTime = 0;
+		Device.prototype._globalTime = 0;
 		Device.prototype._elapsed = 0;
 
 		return Device;

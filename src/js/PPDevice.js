@@ -48,7 +48,7 @@ define([
 			gl.enableVertexAttribArray(aTexCoord);
 			window.defaultShaderPogram = this._defaultShaderPogram;
 
-			// POST PROCESSING SHADERS
+			// ASCII POST PROCESSING SHADER
 			var postProcessingVs = null;
 			FileUtils.loadFile("shaders/post_processing.vs", false, function(response)
 			{
@@ -66,6 +66,19 @@ define([
 			var glPpShaderProgram = this._ppShaderProgram.glShaderProgram;
 			gl.useProgram(glPpShaderProgram);
 			gl.enableVertexAttribArray(gl.getAttribLocation(glPpShaderProgram, "aPosition"));
+
+			// CRT POST PROCESSING SHADER
+			var crtFs = null;
+			FileUtils.loadFile("shaders/crt.fs", false, function(response)
+			{
+				crtFs = new Shader(gl, Shader.FRAGMENT_SHADER, response);
+			});
+			crtFs.load();
+			this._crtShaderProgram = new ShaderProgram(gl, postProcessingVs, crtFs);
+			this._crtShaderProgram.load();
+			var glCrtShaderProgram = this._crtShaderProgram.glShaderProgram;
+			gl.useProgram(glCrtShaderProgram);
+			gl.enableVertexAttribArray(gl.getAttribLocation(glCrtShaderProgram, "aPosition"));
 
 			// ASCII RAMP TEXTURE
 			this._asciiRampTexture = gl.createTexture();
@@ -90,6 +103,21 @@ define([
 			gl.bindRenderbuffer(gl.RENDERBUFFER, this._renderBuffer);
 			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
 			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._renderBuffer);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			this._renderTexture2 = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture2);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+			this._frameBuffer2 = gl.createFramebuffer();
+			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer2);
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._renderTexture2, 0);
+			this._renderBuffer2 = gl.createRenderbuffer();
+			gl.bindRenderbuffer(gl.RENDERBUFFER, this._renderBuffer2);
+			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
+			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._renderBuffer2);
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
 			// MID RENDER TARGET DATA
@@ -116,12 +144,12 @@ define([
 		PPDevice.prototype.draw = function(gl)
 		{
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture);
 
 			this.renderer.clear();
 			Device.prototype.draw.call(this, gl);
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			//gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer2);
 			this.renderer.clear();
 			var glPpShaderProgram = this._ppShaderProgram.glShaderProgram;
 			gl.useProgram(glPpShaderProgram);
@@ -135,14 +163,31 @@ define([
 			gl.uniform1i(gl.getUniformLocation(glPpShaderProgram, "uAsciiSampler"), 1);
 			gl.uniform2fv(gl.getUniformLocation(glPpShaderProgram, "uScreenSize"), [this.width, this.height]);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			this.renderer.clear();
+			var glCrtShaderProgram = this._crtShaderProgram.glShaderProgram;
+			gl.useProgram(glCrtShaderProgram);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer);
+			gl.vertexAttribPointer(gl.getAttribLocation(glCrtShaderProgram, "aPosition"), 2, gl.FLOAT, false, 0, 0);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture2);
+			gl.uniform1i(gl.getUniformLocation(glCrtShaderProgram, "uSampler"), 0);
+			gl.uniform2fv(gl.getUniformLocation(glCrtShaderProgram, "uScreenSize"), [this.width, this.height]);
+			gl.uniform1f(gl.getUniformLocation(glCrtShaderProgram, "uGlobalTime"), this.globalTime);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		};
 
 		PPDevice.prototype._defaultShaderProgram = null;
 		PPDevice.prototype._ppShaderProgram = null;
+		PPDevice.prototype._crtShaderProgram = null;
 
 		PPDevice.prototype._renderTexture = null;
 		PPDevice.prototype._frameBuffer = null;
 		PPDevice.prototype._renderBuffer = null;
+		PPDevice.prototype._renderTexture2 = null;
+		PPDevice.prototype._frameBuffer2 = null;
+		PPDevice.prototype._renderBuffer2 = null;
 		PPDevice.prototype._quadBuffer = null;
 
 		PPDevice.prototype._asciiRampTexture = null;

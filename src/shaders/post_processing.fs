@@ -4,6 +4,7 @@ uniform vec2 uScreenSize;
 uniform sampler2D uSampler;
 uniform sampler2D uAsciiSampler;
 
+
 const float xStep = 8.0;
 const float yStep = 11.0;
 const float rampCharCount = 70.0;
@@ -50,7 +51,5 @@ void main(void)
 {
 	vec4 pixelColor = pixelSample(gl_FragCoord.xy);
 	float gray = grayify(pixelColor);
-
 	gl_FragColor = asciify(gray, mod(gl_FragCoord.xy, vec2(xStep, yStep)));
-	//gl_FragColor = vec4(mod(gl_FragCoord.xy, vec2(xStep, yStep)) / 10.0, 0.0, 1.0);
 }

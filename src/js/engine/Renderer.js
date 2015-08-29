@@ -25,7 +25,7 @@ define([
 				console.error("Impossible d'initialiser le WebGL. Il est possible que votre navigateur ne supporte pas cette fonctionnalité.", e);
 			}
 
-			this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
+			this._gl.clearColor(0.1, 0.1, 0.1, 1.0);
 		}
 
 		Renderer.prototype.identity = function()                            { mat4.identity(this._currentMatrix); };
