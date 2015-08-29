@@ -67,6 +67,14 @@ define([
 			gl.useProgram(glPpShaderProgram);
 			gl.enableVertexAttribArray(gl.getAttribLocation(glPpShaderProgram, "aPosition"));
 
+			// ASCII RAMP TEXTURE
+			this._asciiRampTexture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, this._asciiRampTexture);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, asciiRampImage);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
 			// MID RENDER TARGET
 			this._renderTexture = gl.createTexture();
 			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture);
@@ -113,15 +121,18 @@ define([
 			this.renderer.clear();
 			Device.prototype.draw.call(this, gl);
 
-			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture);
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			this.renderer.clear();
 			var glPpShaderProgram = this._ppShaderProgram.glShaderProgram;
 			gl.useProgram(glPpShaderProgram);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer);
 			gl.vertexAttribPointer(gl.getAttribLocation(glPpShaderProgram, "aPosition"), 2, gl.FLOAT, false, 0, 0);
+			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture);
+			gl.activeTexture(gl.TEXTURE1);
+			gl.bindTexture(gl.TEXTURE_2D, this._asciiRampTexture);
 			gl.uniform1i(gl.getUniformLocation(glPpShaderProgram, "uSampler"), 0);
+			gl.uniform1i(gl.getUniformLocation(glPpShaderProgram, "uAsciiSampler"), 1);
 			gl.uniform2fv(gl.getUniformLocation(glPpShaderProgram, "uScreenSize"), [this.width, this.height]);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		};
@@ -133,6 +144,8 @@ define([
 		PPDevice.prototype._frameBuffer = null;
 		PPDevice.prototype._renderBuffer = null;
 		PPDevice.prototype._quadBuffer = null;
+
+		PPDevice.prototype._asciiRampTexture = null;
 
 		return PPDevice;
 	});
