@@ -5,18 +5,64 @@ if (typeof define !== 'function') {
  * Main
  * ===================================*/
 define([
-		"Device",
-		"RenderContext",
-		"Renderer",
-		"Utils",
-		"Texture"
+		"engine/Device",
+		"engine/Shader",
+		"engine/ShaderProgram",
+		"engine/Camera",
+		"engine/utils/FileUtils",
+
+		"TestObject"
     ]
-	, function (Device, RenderContext, Renderer, Utils, Texture)
+	, function (Device, Shader, ShaderProgram, Camera, FileUtils, TestObject)
     {
+	    // DEVICE
 	    var canvas = document.getElementById("glcanvas");
+	    var device = new Device(canvas);
+	    window.device = device;
+	    var gl = device.renderer.gl;
 
-	    var device = new Device(canvas, "shader-fs", "shader-vs");
+	    // SHADERS
+	    var defaultVs = null;
+	    FileUtils.loadFile("shaders/basic_vs.glsl", false, function(response)
+	    {
+			defaultVs = new Shader(gl, Shader.VERTEX_SHADER, response);
+	    });
 
+	    var defaultFs = null;
+	    FileUtils.loadFile("shaders/basic_fs.glsl", false, function(response)
+	    {
+		    defaultFs = new Shader(gl, Shader.FRAGMENT_SHADER, response);
+	    });
+	    defaultVs.load();
+	    defaultFs.load();
+	    var defaultShaderProgram = new ShaderProgram(gl, defaultVs, defaultFs);
+	    defaultShaderProgram.load();
+	    window.defaultShaderPogram = defaultShaderProgram;
+
+	    // CAMERA
+		var defaultCamera = new Camera();
+	    defaultCamera.setViewport(0, 0, canvas.width, canvas.height);
+	    defaultCamera.set(45, canvas.width / canvas.height, 0.1, 100.0);
+	    var view = mat4.create();
+	    mat4.translate(view, view, [0, 0, 7.0]);
+	    mat4.invert(view, view);
+	    defaultCamera.setViewMatrix(view);
+	    window.defaultCamera = defaultCamera;
+
+		// IMAGES
+	    var crateImage = new Image();
+	    crateImage.loaded = false;
+	    crateImage.onload = function() {
+
+		    var testObject = new TestObject;
+		    testObject.load();
+		    device.addGameObject(testObject);
+		    device.start();
+
+	    };
+	    crateImage.src = "images/crate.gif";
+	    window.crateImage = crateImage;
+/*
 	    var rdr = device.renderer;
 	    rdr.setMatrixMode(Renderer.MatrixMode.PROJECTION);
 	    rdr.identity();
@@ -150,7 +196,7 @@ define([
 
 		    device.start();
 	    };
-	    img.src = "images/nehe.gif";
+	    img.src = "images/crate.gif";
 
 	    device.update = function()
 	    {
@@ -171,6 +217,6 @@ define([
 		    rdr.rotate(Utils.degToRad(rCube), [1, 1, 1]);
 		    mat4.translate(3.0, 0.0, 0.0);
 		    rdr.draw(cube);
-	    };
+	    };*/
 
 	});

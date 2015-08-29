@@ -26,7 +26,8 @@ module.exports = function(grunt) {
 
             requirejs: {
                 files: [
-                    { expand: true, cwd: 'node_modules/grunt-contrib-requirejs/node_modules/requirejs/', src: ['require.js'], dest: 'public/js/' }
+                    { expand: true, cwd: 'node_modules/grunt-contrib-requirejs/node_modules/requirejs/', src: ['require.js'], dest: 'public/js/' },
+                    { expand: true, cwd: 'src/', src: ['js/extern/gl-matrix-min.js'], dest: 'public/' }
                 ]
             }
         },
@@ -37,7 +38,11 @@ module.exports = function(grunt) {
                     baseUrl: 'src/js',
                     name: 'main',
                     out: 'public/js/main.js',
-                    optimize: 'none'
+                    optimize: 'none',
+
+	                paths: {
+		                //"gl-matrix": "extern/gl-matrix-min"
+	                }
                 }
             }
         },
