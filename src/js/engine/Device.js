@@ -11,11 +11,15 @@ define([
 	{
 		function Device(canvas)
 		{
+			this._canvas = canvas;
 			this._renderer = new Renderer(canvas);
 			this._gameObjects = [];
 			this._removedGameObjects = [];
 			console.log("Device created");
 		}
+
+		Device.prototype.load = function() {};
+		Device.prototype.release = function() {};
 
 		Device.prototype.start = function() {
 			this._running = true;
@@ -35,9 +39,6 @@ define([
 			this._running = false;
 		};
 
-		Device.prototype.preDraw = function(gl) {};
-		Device.prototype.postDraw = function(gl) {};
-
 		Device.prototype.update = function() {
 			var thisFrameTime = Date.now();
 			this._elapsed = thisFrameTime - this._lastFrameTime;
@@ -50,12 +51,7 @@ define([
 			}.bind(this));
 
 			// DRAW
-			this.preDraw(this.renderer.gl);
-			this._renderer.clear();
-			this._gameObjects.forEach(function(element) {
-				element.draw(this.renderer.gl);
-			}.bind(this));
-			this.postDraw(this.renderer.gl);
+			this.draw(this.renderer.gl);
 
 			// CLEAN
 			while (this._removedGameObjects.length)
@@ -67,6 +63,13 @@ define([
 					this._gameObjects.splice(i, 1);
 				}
 			}
+		};
+
+		Device.prototype.draw = function(gl)
+		{
+			this._gameObjects.forEach(function(element) {
+				element.draw(this.renderer.gl);
+			}.bind(this));
 		};
 
 		Device.prototype.addGameObject = function(gameObject) {
@@ -81,6 +84,15 @@ define([
 			get : function() { return this._renderer; }
 		});
 
+		Object.defineProperty(Device.prototype, "width", {
+			get : function() { return this._canvas.width; }
+		});
+
+		Object.defineProperty(Device.prototype, "height", {
+			get : function() { return this._canvas.height; }
+		});
+
+		Device.prototype._canvas = null;
 		Device.prototype._renderer = null;
 
 		Device.prototype._gameObjects = null;

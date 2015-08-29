@@ -5,22 +5,23 @@ uniform sampler2D uSampler;
 
 vec4 pixelSample(vec2 screenPos)
 {
-	const float step = 10.0;
-	float xMod = mod(screenPos.x, step);
+	const float xStep = 8.0;
+	float xMod = mod(screenPos.x, xStep);
 	float xLo = screenPos.x - xMod;
-	float xHi = xLo + step;
+	float xHi = xLo + xStep;
 
-	float yMod = mod(screenPos.y, step);
+	const float yStep = 11.0;
+	float yMod = mod(screenPos.y, yStep);
     float yLo = screenPos.y - yMod;
-    float yHi = yLo + step;
+    float yHi = yLo + yStep;
 
 	vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
-	for (float x = 0.0; x < step; ++x)
-	for (float y = 0.0; y < step; ++y)
+	for (float x = 0.0; x < xStep; ++x)
+	for (float y = 0.0; y < yStep; ++y)
 	{
 		color += texture2D(uSampler, vec2(xLo + x, yLo + y) / uScreenSize);
 	}
-	color /= step*step;
+	color /= xStep*yStep;
     return color;
 }
 

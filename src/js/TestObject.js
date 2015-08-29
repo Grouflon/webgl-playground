@@ -135,16 +135,6 @@ define([
 			// GL
 			var gl = device.renderer.gl;
 
-			var shaderProgram = defaultShaderPogram.glShaderProgram;
-			gl.useProgram(shaderProgram);
-
-			var aPosition = gl.getAttribLocation(shaderProgram, "aPosition");
-			var aColor = gl.getAttribLocation(shaderProgram, "aColor");
-			var aTexCoord = gl.getAttribLocation(shaderProgram, "aTexCoord");
-			gl.enableVertexAttribArray(aPosition);
-			gl.enableVertexAttribArray(aColor);
-			gl.enableVertexAttribArray(aTexCoord);
-
 			this._glTexture = gl.createTexture();
 			gl.bindTexture(gl.TEXTURE_2D, this._glTexture);
 			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
