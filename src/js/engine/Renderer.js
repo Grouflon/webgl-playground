@@ -46,33 +46,6 @@ define([
 				console.error("Renderer error: Can't empty stack.");
 		};
 
-/*
-		Renderer.prototype.draw = function(renderContext)
-		{
-			var gl = this._gl;
-
-			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.vertexBuffer);
-			gl.vertexAttribPointer(this._glShaderProgram.vertexPositionAttribute, renderContext.vertexSize, gl.FLOAT, false, 0, 0);
-
-			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.colorBuffer);
-			gl.vertexAttribPointer(this._glShaderProgram.vertexColorAttribute, renderContext.colorSize, gl.FLOAT, false, 0, 0);
-
-			gl.bindBuffer(gl.ARRAY_BUFFER, renderContext.textureCoordBuffer);
-			gl.vertexAttribPointer(this._glShaderProgram.textureCoordAttribute, renderContext.textureCoordSize, gl.FLOAT, false, 0, 0);
-
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, renderContext.texture.glTexture);
-			gl.uniform1i(this._glShaderProgram.samplerUniform, 0);
-
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderContext.indexBuffer);
-
-			gl.uniformMatrix4fv(this._glShaderProgram.pMatrixUniform, false, this._stacks[Renderer.MatrixMode.PROJECTION][0]);
-			gl.uniformMatrix4fv(this._glShaderProgram.mvMatrixUniform, false, this._stacks[Renderer.MatrixMode.MODELVIEW][0]);
-
-			gl.drawElements(renderContext.mode, renderContext.size, gl.UNSIGNED_SHORT, 0);
-		};
-		*/
-
 		Renderer.prototype.clear = function()
 		{
 			this._gl.clear(this._gl.COLOR_BUFFER_BIT| this._gl.DEPTH_BUFFER_BIT);
