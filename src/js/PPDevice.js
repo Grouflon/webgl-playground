@@ -42,9 +42,11 @@ define([
 			var aPosition = gl.getAttribLocation(glDefaultShaderProgram, "aPosition");
 			var aColor = gl.getAttribLocation(glDefaultShaderProgram, "aColor");
 			var aTexCoord = gl.getAttribLocation(glDefaultShaderProgram, "aTexCoord");
+			var aNormal = gl.getAttribLocation(glDefaultShaderProgram, "aNormal");
 			gl.enableVertexAttribArray(aPosition);
 			gl.enableVertexAttribArray(aColor);
 			gl.enableVertexAttribArray(aTexCoord);
+			gl.enableVertexAttribArray(aNormal);
 			window.defaultShaderPogram = this._defaultShaderPogram;
 
 			// ASCII POST PROCESSING SHADER
@@ -142,8 +144,6 @@ define([
 			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
 			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._renderBuffer2);
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-			console.log(this.width, this.height)
 		};
 
 		PPDevice.prototype._releaseFrameBuffers = function()
@@ -174,14 +174,11 @@ define([
 			if (this._resized)
 				this._reloadFrameBuffers();
 
-			console.log(this.width, this.height);
-
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 
 			this.renderer.clear();
 			Device.prototype.draw.call(this, gl);
 
-			//gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer2);
 			this.renderer.clear();
 			var glPpShaderProgram = this._ppShaderProgram.glShaderProgram;

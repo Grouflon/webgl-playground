@@ -57,35 +57,35 @@ define([
 				-1.0, -1.0, 1.0
 			];
 			this._colors = [
-				1.0, 0.0, 0.0, 1.0,
-				1.0, 0.0, 0.0, 1.0,
-				1.0, 0.0, 0.0, 1.0,
-				1.0, 0.0, 0.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				1.0, 1.0, 0.0, 1.0,
-				1.0, 1.0, 0.0, 1.0,
-				1.0, 1.0, 0.0, 1.0,
-				1.0, 1.0, 0.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				0.0, 1.0, 0.0, 1.0,
-				0.0, 1.0, 0.0, 1.0,
-				0.0, 1.0, 0.0, 1.0,
-				0.0, 1.0, 0.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				1.0, 0.5, 0.5, 1.0,
-				1.0, 0.5, 0.5, 1.0,
-				1.0, 0.5, 0.5, 1.0,
-				1.0, 0.5, 0.5, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				1.0, 0.0, 1.0, 1.0,
-				1.0, 0.0, 1.0, 1.0,
-				1.0, 0.0, 1.0, 1.0,
-				1.0, 0.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				0.0, 0.0, 1.0, 1.0,
-				0.0, 0.0, 1.0, 1.0,
-				0.0, 0.0, 1.0, 1.0,
-				0.0, 0.0, 1.0, 1.0
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0
 			];
 			this._texCoords = [
 				// Front face
@@ -124,6 +124,43 @@ define([
 				1.0, 1.0,
 				0.0, 1.0
 			];
+			this._normals = [
+				// FRONT
+				0.0, 0.0, 1.0,
+				0.0, 0.0, 1.0,
+				0.0, 0.0, 1.0,
+				0.0, 0.0, 1.0,
+
+				// BACK
+				0.0, 0.0, -1.0,
+				0.0, 0.0, -1.0,
+				0.0, 0.0, -1.0,
+				0.0, 0.0, -1.0,
+
+				// TOP
+				0.0, 1.0, 0.0,
+				0.0, 1.0, 0.0,
+				0.0, 1.0, 0.0,
+				0.0, 1.0, 0.0,
+
+				// BOTTOM
+				0.0, -1.0, 0.0,
+				0.0, -1.0, 0.0,
+				0.0, -1.0, 0.0,
+				0.0, -1.0, 0.0,
+
+				// RIGHT
+				1.0, 0.0, 0.0,
+				1.0, 0.0, 0.0,
+				1.0, 0.0, 0.0,
+				1.0, 0.0, 0.0,
+
+				// LEFT
+				-1.0, 0.0, 0.0,
+				-1.0, 0.0, 0.0,
+				-1.0, 0.0, 0.0,
+				-1.0, 0.0, 0.0
+			];
 			this._indices = [
 				0, 1, 2, 0, 2, 3,
 				4, 5, 6, 4, 6, 7,
@@ -155,6 +192,10 @@ define([
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._glTexCoordBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoords), gl.STATIC_DRAW);
 
+			this._glNormalBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._glNormalBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._normals), gl.STATIC_DRAW);
+
 			this._glIndexBuffer = gl.createBuffer();
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this._indices), gl.STATIC_DRAW);
@@ -167,6 +208,7 @@ define([
 			gl.deleteBuffer(this._glVertexBuffer);
 			gl.deleteBuffer(this._glColorBuffer);
 			gl.deleteBuffer(this._glTexCoordBuffer);
+			gl.deleteBuffer(this._glNormalBuffer);
 			gl.deleteBuffer(this._glIndexBuffer);
 		};
 
@@ -188,10 +230,14 @@ define([
 			var aPosition = gl.getAttribLocation(shaderProgram, "aPosition");
 			var aColor = gl.getAttribLocation(shaderProgram, "aColor");
 			var aTexCoord = gl.getAttribLocation(shaderProgram, "aTexCoord");
+			var aNormal = gl.getAttribLocation(shaderProgram, "aNormal");
 			var uSampler = gl.getUniformLocation(shaderProgram, "uSampler");
 			var uModel = gl.getUniformLocation(shaderProgram, "uModel");
 			var uView = gl.getUniformLocation(shaderProgram, "uView");
 			var uProj = gl.getUniformLocation(shaderProgram, "uProj");
+			var uAmbientColor = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+			var uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
+			var uLightDirection = gl.getUniformLocation(shaderProgram, "uLightDirection");
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._glVertexBuffer);
 			gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
@@ -201,6 +247,9 @@ define([
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._glTexCoordBuffer);
 			gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, 0, 0);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._glNormalBuffer);
+			gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
 
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, this._glTexture);
@@ -220,6 +269,9 @@ define([
 			gl.uniformMatrix4fv(uModel, false, this.transform.getMatrix());
 			gl.uniformMatrix4fv(uView, false, camera.getViewMatrix());
 			gl.uniformMatrix4fv(uProj, false, camera.getProjMatrix());
+			gl.uniform3fv(uAmbientColor, [0.1, 0.1, 0.1]);
+			gl.uniform3fv(uLightColor, [1.0, 1.0, 1.0]);
+			gl.uniform3fv(uLightDirection, [1.0, 0.0, 1.0]);
 
 			gl.drawElements(gl.TRIANGLES, this._indices.length, gl.UNSIGNED_SHORT, 0);
 
@@ -229,11 +281,13 @@ define([
 		TestObject.prototype._glVertexBuffer = null;
 		TestObject.prototype._glColorBuffer = null;
 		TestObject.prototype._glTexCoordBuffer = null;
+		TestObject.prototype._glNormalBuffer = null;
 		TestObject.prototype._glIndexBuffer = null;
 
 		TestObject.prototype._vertices = null;
 		TestObject.prototype._colors = null;
 		TestObject.prototype._texCoords = null;
+		TestObject.prototype._normals = null;
 		TestObject.prototype._indices = null;
 
 		return TestObject;
