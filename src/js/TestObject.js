@@ -214,11 +214,11 @@ define([
 
 		TestObject.prototype.update = function(dt)
 		{
-			var rotation = this.transform.getRotation();
-			rotation[0] += 0.75*dt;
-			rotation[1] += 0.75*dt;
-			rotation[5] += 0.75*dt;
-			this.transform.setRotation(rotation[0], rotation[1], rotation[2]);
+			m = this.transform.getMatrix();
+			mat4.rotateX(m, m, 0.75*dt);
+			mat4.rotateY(m, m, 0.75*dt);
+			mat4.rotateZ(m, m, 0.75*dt);
+			this.transform.setMatrix(m);
 		};
 
 		TestObject.prototype.draw = function(gl)
@@ -258,14 +258,9 @@ define([
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer);
 
 			// CAMERA
-			var camera = new Camera();
-			camera.set(45, device.width / device.height, 0.1, 100.0);
-			var view = mat4.create();
-			mat4.translate(view, view, [0, 0, 7.0]);
-			mat4.invert(view, view);
-			camera.setViewMatrix(view);
-
-			gl.viewport(0, 0, device.width, device.height);
+			var camera = observer.camera;
+			var viewport = camera.getViewport();
+			gl.viewport(viewport.x, viewport.y, viewport.w, viewport.h);
 			gl.uniformMatrix4fv(uModel, false, this.transform.getMatrix());
 			gl.uniformMatrix4fv(uView, false, camera.getViewMatrix());
 			gl.uniformMatrix4fv(uProj, false, camera.getProjMatrix());

@@ -6,9 +6,10 @@ if (typeof define !== 'function') {
  * ===================================*/
 define([
 		"PPDevice",
-		"TestObject"
+		"TestObject",
+		"Observer"
     ]
-	, function (PPDevice, TestObject)
+	, function (PPDevice, TestObject, Observer)
     {
 	    // DEVICE
 	    var canvas = document.getElementById("glcanvas");
@@ -26,9 +27,16 @@ define([
 		    asciiRampImage.onload = function() {
 
 			    device.load();
+
+			    var observer = new Observer(0, 0, 7.0);
+			    observer.load();
+			    device.addGameObject(observer);
+			    window.observer = observer;
+
 			    var testObject = new TestObject();
 			    testObject.load();
 			    device.addGameObject(testObject);
+
 			    device.start();
 
 		    };

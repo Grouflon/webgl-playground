@@ -31,7 +31,6 @@ define([
 
 		GameObject.prototype.draw = function(gl)
 		{
-			gl.useProgram(defaultShaderPogram);
 		};
 
 		Object.defineProperty(GameObject.prototype, "transform", {

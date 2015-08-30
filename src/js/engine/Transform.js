@@ -13,22 +13,22 @@ define([
 			this._rotation = [0,0,0];
 			this._scale = [1,1,1];
 			this._matrix = mat4.create();
+			this._regenMatrix = false;
 		}
 
 		Transform.prototype.getPosition = function()
 		{
-			return vec3.clone(this._position);
+			return [this._matrix[12], this._matrix[13], this._matrix[14]];
 		};
 
 		Transform.prototype.setPosition = function(x, y, z)
 		{
-			this._position[0] = x;
-			this._position[1] = y;
-			this._position[2] = z;
-			this._regenMatrix = true;
+			this._matrix[12] = x;
+			this._matrix[13] = y;
+			this._matrix[14] = z;
 		};
 
-		Transform.prototype.getRotation = function()
+		/*Transform.prototype.getRotation = function()
 		{
 			return vec3.clone(this._rotation);
 		};
@@ -52,28 +52,41 @@ define([
 			this._scale[1] = y;
 			this._scale[2] = z;
 			this._regenMatrix = true;
-		};
+		};*/
 
 		Transform.prototype.getMatrix = function()
 		{
-			if (this._regenMatrix)
-			{
-				mat4.identity(this._matrix);
-				mat4.translate(this._matrix, this._matrix, this._position);
-				mat4.rotateY(this._matrix, this._matrix, this._rotation[1]);
-				mat4.rotateZ(this._matrix, this._matrix, this._rotation[2]);
-				mat4.rotateX(this._matrix, this._matrix, this._rotation[0]);
-				mat4.scale(this._matrix, this._matrix, this._scale);
-				this._regenMatrix = false;
-			}
 			return mat4.clone(this._matrix);
 		};
 
 		Transform.prototype.setMatrix = function(value)
 		{
 			mat4.copy(this._matrix, value);
-			this._regenMatrix = false;
 		};
+
+		Object.defineProperty(Transform.prototype, "front", {
+			get: function() { var m = this.getMatrix(); return [-m[8], -m[9], -m[10]]; }
+		});
+
+		Object.defineProperty(Transform.prototype, "back", {
+			get: function() { var m = this.getMatrix(); return [m[8], m[9], m[10]]; }
+		});
+
+		Object.defineProperty(Transform.prototype, "up", {
+			get: function() { var m = this.getMatrix(); return [m[4], m[5], m[6]]; }
+		});
+
+		Object.defineProperty(Transform.prototype, "down", {
+			get: function() { var m = this.getMatrix(); return [-m[4], -m[5], -m[6]]; }
+		});
+
+		Object.defineProperty(Transform.prototype, "right", {
+			get: function() { var m = this.getMatrix(); return [m[0], m[1], m[2]]; }
+		});
+
+		Object.defineProperty(Transform.prototype, "left", {
+			get: function() { var m = this.getMatrix(); return [-m[0], -m[1], -m[2]]; }
+		});
 
 		Transform.prototype._position = null;
 		Transform.prototype._rotation = null;

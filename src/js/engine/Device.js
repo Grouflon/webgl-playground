@@ -5,9 +5,11 @@ if (typeof define !== 'function') {
  * Device
  * ===================================*/
 define([
-		"engine/Renderer"
+		"engine/Renderer",
+		"engine/input/Keyboard",
+		"engine/input/Mouse",
 	]
-	, function (Renderer)
+	, function (Renderer, Keyboard, Mouse)
 	{
 		function Device(canvas)
 		{
@@ -22,6 +24,8 @@ define([
 		Device.prototype.release = function() {};
 
 		Device.prototype.start = function() {
+			Keyboard.init();
+			Mouse.init(this._canvas);
 			this._running = true;
 			this._lastFrameTime = Date.now();
 			this._globalTime = 0;
@@ -41,6 +45,8 @@ define([
 		};
 
 		Device.prototype.update = function() {
+			Keyboard.reset();
+			Mouse.reset();
 			var thisFrameTime = Date.now();
 			this._elapsed = thisFrameTime - this._lastFrameTime;
 			this._elapsed *= 0.001;
