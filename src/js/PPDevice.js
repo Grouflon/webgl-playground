@@ -88,6 +88,30 @@ define([
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
 			// MID RENDER TARGET
+			this._loadFrameBuffers();
+			window.onresize = function() {
+				var wrapper = document.getElementById("canvas-wrapper");
+				this._canvas.width = wrapper.clientWidth;
+				this._canvas.height = wrapper.clientHeight;
+				this._resized = true;
+			}.bind(this);
+
+			// MID RENDER TARGET DATA
+			this._quadBuffer = gl.createBuffer();
+			var quadVertices = [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1];
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVertices), gl.STATIC_DRAW);
+		};
+
+		PPDevice.prototype.release = function()
+		{
+			this._releaseFrameBuffers();
+		};
+
+		PPDevice.prototype._loadFrameBuffers = function()
+		{
+			var gl = this.renderer.gl;
+
 			this._renderTexture = gl.createTexture();
 			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -119,19 +143,39 @@ define([
 			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._renderBuffer2);
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-			// MID RENDER TARGET DATA
-			this._quadBuffer = gl.createBuffer();
-			var quadVertices = [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1];
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVertices), gl.STATIC_DRAW);
+			console.log(this.width, this.height)
 		};
 
-		PPDevice.prototype.release = function()
+		PPDevice.prototype._releaseFrameBuffers = function()
 		{
+			var gl = this.renderer.gl;
+			gl.deleteFramebuffer(this._frameBuffer);
+			gl.deleteFramebuffer(this._frameBuffer2);
+			gl.deleteRenderbuffer(this._renderBuffer);
+			gl.deleteRenderbuffer(this._renderBuffer2);
+			gl.deleteTexture(this._renderTexture);
+			gl.deleteTexture(this._renderTexture2);
+			this._frameBuffer = null;
+			this._frameBuffer2 = null;
+			this._renderBuffer = null;
+			this._renderBuffer2 = null;
+			this._renderTexture = null;
+			this._renderTexture2 = null;
 		};
+
+		PPDevice.prototype._reloadFrameBuffers = function()
+		{
+			this._releaseFrameBuffers();
+			this._loadFrameBuffers();
+		}
 
 		PPDevice.prototype.draw = function(gl)
 		{
+			if (this._resized)
+				this._reloadFrameBuffers();
+
+			console.log(this.width, this.height);
+
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 
 			this.renderer.clear();
@@ -180,6 +224,8 @@ define([
 		PPDevice.prototype._quadBuffer = null;
 
 		PPDevice.prototype._asciiRampTexture = null;
+
+		PPDevice.prototype._resized = false;
 
 		return PPDevice;
 	});

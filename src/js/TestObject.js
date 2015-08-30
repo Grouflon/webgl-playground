@@ -210,7 +210,6 @@ define([
 
 			// CAMERA
 			var camera = new Camera();
-			console.log(device.width, device.height);
 			camera.set(45, device.width / device.height, 0.1, 100.0);
 			var view = mat4.create();
 			mat4.translate(view, view, [0, 0, 7.0]);
