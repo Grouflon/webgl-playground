@@ -53,4 +53,5 @@ void main(void)
 	vec4 pixelColor = pixelSample(gl_FragCoord.xy);
 	float gray = grayify(pixelColor);
 	gl_FragColor = asciify(gray, mod(gl_FragCoord.xy, vec2(xStep, yStep)));
+	gl_FragColor *= vec4(0.3, 1.0, 0.5, 1.0);
 }

@@ -58,9 +58,6 @@ define([
 				element.update(this._elapsed);
 			}.bind(this));
 
-			// DRAW
-			this.draw(this.renderer.gl);
-
 			// CLEAN
 			while (this._removedGameObjects.length)
 			{
@@ -71,6 +68,9 @@ define([
 					this._gameObjects.splice(i, 1);
 				}
 			}
+
+			// DRAW
+			this.draw(this.renderer.gl);
 		};
 
 		Device.prototype.draw = function(gl)

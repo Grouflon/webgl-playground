@@ -22,6 +22,8 @@ define([
 		{
 			var gl = this.renderer.gl;
 
+			gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
 			// BASIC SHADERS
 			var defaultVs = null;
 			FileUtils.loadFile("shaders/basic.vs", false, function(response)
@@ -41,11 +43,11 @@ define([
 			gl.useProgram(glDefaultShaderProgram);
 			var aPosition = gl.getAttribLocation(glDefaultShaderProgram, "aPosition");
 			var aColor = gl.getAttribLocation(glDefaultShaderProgram, "aColor");
-			var aTexCoord = gl.getAttribLocation(glDefaultShaderProgram, "aTexCoord");
+		//	var aTexCoord = gl.getAttribLocation(glDefaultShaderProgram, "aTexCoord");
 			var aNormal = gl.getAttribLocation(glDefaultShaderProgram, "aNormal");
 			gl.enableVertexAttribArray(aPosition);
 			gl.enableVertexAttribArray(aColor);
-			gl.enableVertexAttribArray(aTexCoord);
+		//	gl.enableVertexAttribArray(aTexCoord);
 			gl.enableVertexAttribArray(aNormal);
 			window.defaultShaderPogram = this._defaultShaderPogram;
 

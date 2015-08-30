@@ -23,35 +23,35 @@ define([
 
 		Observer.prototype.update = function(dt)
 		{
-			var speed = 3.0;
-			var angularSpeed = 0.5;
+			var speed = 10.0;
+			var angularSpeed = 1.0;
 			var m = this.transform.getMatrix();
 
 			// LOOK
 			m[12] = m[13] = m[14] = 0.0;
 			var s = angularSpeed * dt;
 
-			if (Keyboard.check([Keys.UP]))
+			if (Keyboard.check([Keys.S]))
 			{
 				mat4.rotateX(m, m, s);
 			}
-			if (Keyboard.check([Keys.DOWN]))
+			if (Keyboard.check(Keys.W) || Keyboard.check(Keys.Z))
 			{
 				mat4.rotateX(m, m, -s);
 			}
-			if (Keyboard.check([Keys.A]))
+			if (Keyboard.check([Keys.LEFT]))
 			{
 				mat4.rotateY(m, m, s);
 			}
-			if (Keyboard.check([Keys.D]))
+			if (Keyboard.check([Keys.RIGHT]))
 			{
 				mat4.rotateY(m, m, -s);
 			}
-			if (Keyboard.check([Keys.LEFT]))
+			if (Keyboard.check(Keys.A) || Keyboard.check(Keys.Q))
 			{
 				mat4.rotateZ(m, m, s);
 			}
-			if (Keyboard.check([Keys.RIGHT]))
+			if (Keyboard.check([Keys.D]))
 			{
 				mat4.rotateZ(m, m, -s);
 			}
@@ -61,7 +61,11 @@ define([
 			m[12] = p[0];
 			m[13] = p[1];
 			m[14] = p[2];
-			if (Keyboard.check([Keys.W]))
+
+			var t = vec3.fromValues(0, 0, -speed*dt);
+			mat4.translate(m, m, t);
+
+			/*if (Keyboard.check([Keys.W]))
 			{
 				var t = vec3.fromValues(0, 0, -speed*dt);
 				mat4.translate(m, m, t);
@@ -70,7 +74,7 @@ define([
 			{
 				var t = vec3.fromValues(0, 0, speed*dt);
 				mat4.translate(m, m, t);
-			}
+			}*/
 			this.transform.setMatrix(m);
 
 			// UPDATE CAMERA

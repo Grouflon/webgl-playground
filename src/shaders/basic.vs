@@ -1,6 +1,6 @@
 attribute vec3 aPosition;
 attribute vec4 aColor;
-attribute vec2 aTexCoord;
+//attribute vec2 aTexCoord;
 attribute vec3 aNormal;
 
 uniform mat4 uModel;
@@ -19,7 +19,7 @@ void main(void)
 {
     gl_Position = uProj* uView * uModel * vec4(aPosition, 1.0);
     vColor = aColor;
-    vTextureCoord = aTexCoord;
+//    vTextureCoord = aTexCoord;
 
     vec4 transformedNormal = uModel * vec4(aNormal, 1.0);
     float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightDirection), 0.0);

@@ -6,10 +6,10 @@ if (typeof define !== 'function') {
  * ===================================*/
 define([
 		"PPDevice",
-		"TestObject",
+		"LandscapeController",
 		"Observer"
     ]
-	, function (PPDevice, TestObject, Observer)
+	, function (PPDevice, LandscapeController, Observer)
     {
 	    // DEVICE
 	    var canvas = document.getElementById("glcanvas");
@@ -28,14 +28,14 @@ define([
 
 			    device.load();
 
-			    var observer = new Observer(0, 0, 7.0);
+			    var observer = new Observer(0.0, 0.0, 7.0);
 			    observer.load();
 			    device.addGameObject(observer);
 			    window.observer = observer;
 
-			    var testObject = new TestObject();
-			    testObject.load();
-			    device.addGameObject(testObject);
+			    var lc = new LandscapeController();
+			    lc.load();
+			    device.addGameObject(lc);
 
 			    device.start();
 
