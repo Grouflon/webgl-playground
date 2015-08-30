@@ -19,6 +19,18 @@ define([
 
 			this.transform.setPosition(x, y, z);
 			this._camera = new Camera();
+
+			this._pitchAcc = 1.0;
+			this._pitchDamp = 0.9;
+			this._pitchMaxSpeed = 3.0;
+
+			this._yawAcc = 1.0;
+			this._yawDamp = 0.9;
+			this._yawMaxSpeed = 3.0;
+
+			this._rollAcc = 1.5;
+			this._rollDamp = 0.9;
+			this._rollMaxSpeed = 4.0;
 		}
 
 		Observer.prototype.update = function(dt)
@@ -30,31 +42,42 @@ define([
 			// LOOK
 			m[12] = m[13] = m[14] = 0.0;
 			var s = angularSpeed * dt;
-
-			if (Keyboard.check([Keys.S]))
+			if (Keyboard.check([Keys.S]) || Keyboard.check(Keys.DOWN))
 			{
-				mat4.rotateX(m, m, s);
+				this._pitchSpeed += this._pitchAcc*dt;
 			}
-			if (Keyboard.check(Keys.W) || Keyboard.check(Keys.Z))
+			if (Keyboard.check(Keys.W) || Keyboard.check(Keys.Z) || Keyboard.check(Keys.UP))
 			{
-				mat4.rotateX(m, m, -s);
+				this._pitchSpeed -= this._pitchAcc*dt;
 			}
 			if (Keyboard.check([Keys.LEFT]))
 			{
-				mat4.rotateY(m, m, s);
+				this._yawSpeed += this._yawAcc*dt;
 			}
 			if (Keyboard.check([Keys.RIGHT]))
 			{
-				mat4.rotateY(m, m, -s);
+				this._yawSpeed -= this._yawAcc*dt;
 			}
 			if (Keyboard.check(Keys.A) || Keyboard.check(Keys.Q))
 			{
-				mat4.rotateZ(m, m, s);
+				this._rollSpeed += this._rollAcc*dt;
 			}
 			if (Keyboard.check([Keys.D]))
 			{
-				mat4.rotateZ(m, m, -s);
+				this._rollSpeed -= this._rollAcc*dt;
 			}
+
+			this._pitchSpeed -= this._pitchSpeed*this._pitchDamp*dt;
+			this._pitchSpeed = Math.min(this._pitchSpeed, this._pitchMaxSpeed);
+			mat4.rotateX(m, m, this._pitchSpeed * dt);
+
+			this._yawSpeed -= this._yawSpeed*this._yawDamp*dt;
+			this._yawSpeed = Math.min(this._yawSpeed, this._yawMaxSpeed);
+			mat4.rotateY(m, m, this._yawSpeed * dt);
+
+			this._rollSpeed -= this._rollSpeed*this._rollDamp*dt;
+			this._rollSpeed = Math.min(this._rollSpeed, this._rollMaxSpeed);
+			mat4.rotateZ(m, m, this._rollSpeed * dt);
 
 			// MOVE
 			var p = this.transform.getPosition();
@@ -90,6 +113,18 @@ define([
 		});
 
 		Observer.prototype._camera = null;
+		Observer.prototype._pitchSpeed = 0.0;
+		Observer.prototype._pitchAcc = 0.0;
+		Observer.prototype._pitchDamp = 0.0;
+		Observer.prototype._pitchMaxSpeed = 0.0;
+		Observer.prototype._yawSpeed = 0.0;
+		Observer.prototype._yawAcc = 0.0;
+		Observer.prototype._yawDamp = 0.0;
+		Observer.prototype._yawMaxSpeed = 0.0;
+		Observer.prototype._rollSpeed = 0.0;
+		Observer.prototype._rollAcc = 0.0;
+		Observer.prototype._rollDamp = 0.0;
+		Observer.prototype._rollMaxSpeed = 0.0;
 
 		return Observer;
 	});

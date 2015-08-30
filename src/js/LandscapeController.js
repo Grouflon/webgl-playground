@@ -19,9 +19,9 @@ define([
 			this._bottomBoxes = [];
 			this._range = 10;
 			this._boxSize = 6.0;
-			this._landscapeAmplitude = 20.0;
+			this._landscapeAmplitude = 40.0;
 			this._boxMinHeight = 2.0;
-			this._boxMaxHeight = 12.0;
+			this._boxMaxHeight = 24.0;
 			this._observerCenter = [0, 0];
 			this._center = [0, 0];
 		}
