@@ -1,8 +1,15 @@
+@import "reset";
 @import "lesshat";
 
 /* == LAYOUT == */
-body { background: #777 }
-#container canvas { display: block; margin: 15px auto; }
+body { background: #000 }
+#main-wrapper { max-width: 1080px; margin: 0 auto;}
+
+#canvas-wrapper { width: 100%; padding-bottom: 56.25%; position: relative; }
+canvas { display: block; position: absolute; top: 0; left: 0; width:100%; height: 100%; }
+
+
+
 canvas { .user-select(none); image-rendering: optimizeSpeed;             // Older versions of FF
   image-rendering: -moz-crisp-edges;          // FF 6.0+
   image-rendering: -webkit-optimize-contrast; // Webkit (non standard naming)

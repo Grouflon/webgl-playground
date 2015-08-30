@@ -5,9 +5,10 @@ if (typeof define !== 'function') {
  * TestObject
  * ===================================*/
 define([
-		"engine/GameObject"
+		"engine/GameObject",
+		"engine/Camera"
 	]
-	, function (GameObject)
+	, function (GameObject, Camera)
 	{
 		TestObject.prototype = Object.create(GameObject.prototype);
 
@@ -182,9 +183,6 @@ define([
 		{
 			var shaderProgram = defaultShaderPogram.glShaderProgram;
 			gl.useProgram(shaderProgram);
-			var camera = defaultCamera;
-			var viewport = camera.getViewport();
-			gl.viewport(viewport.x, viewport.y, viewport.w, viewport.h);
 			gl.enable(gl.DEPTH_TEST);
 
 			var aPosition = gl.getAttribLocation(shaderProgram, "aPosition");
@@ -210,6 +208,16 @@ define([
 
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer);
 
+			// CAMERA
+			var camera = new Camera();
+			console.log(device.width, device.height);
+			camera.set(45, device.width / device.height, 0.1, 100.0);
+			var view = mat4.create();
+			mat4.translate(view, view, [0, 0, 7.0]);
+			mat4.invert(view, view);
+			camera.setViewMatrix(view);
+
+			gl.viewport(0, 0, device.width, device.height);
 			gl.uniformMatrix4fv(uModel, false, this.transform.getMatrix());
 			gl.uniformMatrix4fv(uView, false, camera.getViewMatrix());
 			gl.uniformMatrix4fv(uProj, false, camera.getProjMatrix());

@@ -8,10 +8,9 @@ define([
 		"engine/Device",
 		"engine/Shader",
 		"engine/ShaderProgram",
-		"engine/Camera",
 		"engine/utils/FileUtils"
 	]
-	, function (Device, Shader, ShaderProgram, Camera, FileUtils)
+	, function (Device, Shader, ShaderProgram, FileUtils)
 	{
 		PPDevice.prototype = Object.create(Device.prototype);
 
@@ -125,16 +124,6 @@ define([
 			var quadVertices = [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1];
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVertices), gl.STATIC_DRAW);
-
-			// CAMERA
-			var defaultCamera = new Camera();
-			defaultCamera.setViewport(0, 0, this.width, this.height);
-			defaultCamera.set(45, this.width / this.height, 0.1, 100.0);
-			var view = mat4.create();
-			mat4.translate(view, view, [0, 0, 7.0]);
-			mat4.invert(view, view);
-			defaultCamera.setViewMatrix(view);
-			window.defaultCamera = defaultCamera;
 		};
 
 		PPDevice.prototype.release = function()

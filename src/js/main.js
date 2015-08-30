@@ -15,6 +15,10 @@ define([
 	    var device = new PPDevice(canvas);
 	    window.device = device;
 
+	    var wrapper = document.getElementById("canvas-wrapper");
+	    canvas.width = wrapper.clientWidth;
+	    canvas.height = wrapper.clientHeight;
+
 		// CRAPPY IMAGE PRELOAD
 	    var crateImage = new Image();
 	    crateImage.onload = function() {
