@@ -222,6 +222,19 @@ define([
 			gl.drawElements(gl.TRIANGLES, this._indices.length, gl.UNSIGNED_SHORT, 0);
 		};
 
+		Box.prototype.isPointInside = function(point, margin)
+		{
+			var pos = this.transform.getPosition();
+			return !(
+				point[0] + margin < pos[0] - this._w*0.5 ||
+				point[0] - margin > pos[0] + this._w*0.5 ||
+				point[1] + margin < pos[1] - this._h*0.5 ||
+				point[1] - margin > pos[1] + this._h*0.5 ||
+				point[2] + margin < pos[2] - this._d*0.5 ||
+				point[2] - margin > pos[2] + this._d*0.5
+				);
+		};
+
 		Box.prototype._w = 0.0;
 		Box.prototype._h = 0.0;
 		Box.prototype._d = 0.0;

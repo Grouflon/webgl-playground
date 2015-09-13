@@ -40,37 +40,55 @@ define([
 				return;
 			}*/
 
-			var speed = 10.0;
-			var angularSpeed = 1.0;
+			var collisionMargin = 0.5;
+			this._speed = Math.min(this._speed + this._acc * dt, this._maxSpeed);
 			var m = this.transform.getMatrix();
+			var boxes = landscape.getCenterBoxes();
 
 			// LOOK
 			m[12] = m[13] = m[14] = 0.0;
-			var s = angularSpeed * dt;
-			if (Keyboard.check([Keys.S]) || Keyboard.check(Keys.DOWN))
+			if (this._hasCollided && this._speed >=0)
 			{
-				this._pitchSpeed += this._pitchAcc*dt;
+				var p = this.transform.getPosition();
+				for (var i = 0; i < boxes.length; ++i)
+				{
+					if (boxes[i].isPointInside(p, collisionMargin))
+					{
+						this._hasCollided = true;
+						break;
+					}
+					this._hasCollided = false;
+				}
+
 			}
-			if (Keyboard.check(Keys.W) || Keyboard.check(Keys.Z) || Keyboard.check(Keys.UP))
+			if (this._speed >= 0)
 			{
-				this._pitchSpeed -= this._pitchAcc*dt;
+				if (Keyboard.check([Keys.S]) || Keyboard.check(Keys.DOWN))
+				{
+					this._pitchSpeed += this._pitchAcc*dt;
+				}
+				if (Keyboard.check(Keys.W) || Keyboard.check(Keys.Z) || Keyboard.check(Keys.UP))
+				{
+					this._pitchSpeed -= this._pitchAcc*dt;
+				}
+				if (Keyboard.check([Keys.LEFT]))
+				{
+					this._yawSpeed += this._yawAcc*dt;
+				}
+				if (Keyboard.check([Keys.RIGHT]))
+				{
+					this._yawSpeed -= this._yawAcc*dt;
+				}
+				if (Keyboard.check(Keys.A) || Keyboard.check(Keys.Q))
+				{
+					this._rollSpeed += this._rollAcc*dt;
+				}
+				if (Keyboard.check([Keys.D]))
+				{
+					this._rollSpeed -= this._rollAcc*dt;
+				}
 			}
-			if (Keyboard.check([Keys.LEFT]))
-			{
-				this._yawSpeed += this._yawAcc*dt;
-			}
-			if (Keyboard.check([Keys.RIGHT]))
-			{
-				this._yawSpeed -= this._yawAcc*dt;
-			}
-			if (Keyboard.check(Keys.A) || Keyboard.check(Keys.Q))
-			{
-				this._rollSpeed += this._rollAcc*dt;
-			}
-			if (Keyboard.check([Keys.D]))
-			{
-				this._rollSpeed -= this._rollAcc*dt;
-			}
+
 
 			this._pitchSpeed -= this._pitchSpeed*this._pitchDamp*dt;
 			this._pitchSpeed = Math.min(this._pitchSpeed, this._pitchMaxSpeed);
@@ -89,20 +107,31 @@ define([
 			m[12] = p[0];
 			m[13] = p[1];
 			m[14] = p[2];
-
-			var t = vec3.fromValues(0, 0, -speed*dt);
+			var t = vec3.fromValues(0, 0, -this._speed*dt);
 			mat4.translate(m, m, t);
-
-			/*if (Keyboard.check([Keys.W]))
+			if (!this._hasCollided)
 			{
-				var t = vec3.fromValues(0, 0, -speed*dt);
-				mat4.translate(m, m, t);
+				var p2 = [m[12], m[13], m[14]];
+				var col = false;
+				for (var i = 0; i < boxes.length; ++i)
+				{
+					col = boxes[i].isPointInside(p2, collisionMargin);
+					if (col) break;
+				}
+				if (col)
+				{
+					this._speed = -this._maxSpeed*3;
+					this._pitchSpeed = 0.0;
+					this._yawSpeed = 0.0;
+					this._rollSpeed = 0.0;
+					this._hasCollided = true;
+					t = vec3.fromValues(0, 0, this._speed*dt);
+					m[12] = p[0];
+					m[13] = p[1];
+					m[14] = p[2];
+					mat4.translate(m, m, t);
+				}
 			}
-			if (Keyboard.check([Keys.S]))
-			{
-				var t = vec3.fromValues(0, 0, speed*dt);
-				mat4.translate(m, m, t);
-			}*/
 			this.transform.setMatrix(m);
 
 			// UPDATE CAMERA
@@ -117,6 +146,10 @@ define([
 			get: function() { return this._camera; }
 		});
 
+		Observer.prototype._speed = 0.0;
+		Observer.prototype._maxSpeed = 10.0;
+		Observer.prototype._acc = 30.0;
+		Observer.prototype._hasCollided = false;
 		Observer.prototype._camera = null;
 		Observer.prototype._pitchSpeed = 0.0;
 		Observer.prototype._pitchAcc = 0.0;

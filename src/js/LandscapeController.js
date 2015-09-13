@@ -20,9 +20,9 @@ define([
 			this._boxPool = [];
 			this._range = 10;
 			this._boxSize = 12.0;
-			this._landscapeAmplitude = 40.0;
+			this._landscapeAmplitude = 60.0;
 			this._boxMinHeight = 2.0;
-			this._boxMaxHeight = 24.0;
+			this._boxMaxHeight = 45.0;
 			this._observerCenter = [0, 0];
 			this._center = [0, 0];
 		}
@@ -127,6 +127,22 @@ define([
 					}
 				}
 			}
+		};
+
+		LandscapeController.prototype.getCenterBoxes = function()
+		{
+			var ret = [];
+			var width = this._range*2;
+
+			for (var x = this._range - 1; x <= this._range + 1; ++x)
+			for (var y = this._range - 1; y <= this._range + 1; ++y)
+			{
+				var topBox = this._topBoxes[width*x + y];
+				var bottomBox = this._bottomBoxes[width*x + y];
+				if (topBox)	ret.push(topBox);
+				if (bottomBox)	ret.push(bottomBox);
+			}
+			return ret;
 		};
 
 		LandscapeController.prototype._createBox = function(x, z, top)

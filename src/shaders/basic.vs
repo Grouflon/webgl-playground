@@ -30,6 +30,6 @@ void main(void)
 
 
     float directionalLightWeighting = max(dot(transformedNormal.xyz, transformedLightDirection.xyz), 0.0);
-    float maxLength = 12.0;
+    float maxLength = 11.0;
     vLightWeighting = (uAmbientColor + uLightColor*directionalLightWeighting) * max(-length(boxPosition.xyz)/pow(maxLength, 2.0) + 1.0, 0.0);
 }

@@ -43,6 +43,7 @@ define([
 			    window.observer = observer;
 
 			    var lc = new LandscapeController();
+			    window.landscape = lc;
 			    lc.load();
 			    device.addGameObject(lc);
 
