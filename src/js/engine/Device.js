@@ -17,6 +17,9 @@ define([
 			this._renderer = new Renderer(canvas);
 			this._gameObjects = [];
 			this._removedGameObjects = [];
+
+			// BLUR EVENTS
+			window.onblur = this._onWindowBlur.bind(this);
 			console.log("Device created");
 		}
 
@@ -48,8 +51,13 @@ define([
 			Keyboard.reset();
 			Mouse.reset();
 			var thisFrameTime = Date.now();
-			this._elapsed = thisFrameTime - this._lastFrameTime;
-			this._elapsed *= 0.001;
+			if (this._tabBlurred) {
+				this._elapsed = 0;
+				this._tabBlurred = false;
+			} else {
+				this._elapsed = thisFrameTime - this._lastFrameTime;
+				this._elapsed *= 0.001;
+			}
 			this._globalTime += this._elapsed;
 			this._lastFrameTime = thisFrameTime;
 
@@ -104,6 +112,11 @@ define([
 			get : function() { return this._globalTime; }
 		});
 
+		Device.prototype._onWindowBlur = function()
+		{
+			this._tabBlurred = true;
+		};
+
 		Device.prototype._canvas = null;
 		Device.prototype._renderer = null;
 
@@ -113,6 +126,7 @@ define([
 		Device.prototype._lastFrameTime = 0;
 		Device.prototype._globalTime = 0;
 		Device.prototype._elapsed = 0;
+		Device.prototype._tabBlurred = false;
 
 		return Device;
 	});
