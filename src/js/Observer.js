@@ -101,7 +101,7 @@ define([
 			this.transform.setMatrix(m);
 
 			// UPDATE CAMERA
-			this._camera.set(45, device.width / device.height, 0.1, 100.0);
+			this._camera.set(45, device.width / device.height, 0.1, 1000.0);
 			var view = mat4.create();
 			mat4.invert(view, this.transform.getMatrix());
 			this._camera.setViewMatrix(view);

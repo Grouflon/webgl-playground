@@ -20,6 +20,11 @@ define([
 	    canvas.width = wrapper.clientWidth;
 	    canvas.height = wrapper.clientHeight;
 
+	    // GUI
+	    var gui = new dat.GUI();
+	    gui.add(device, "asciify");
+	    gui.add(device, "crt");
+
 		// CRAPPY IMAGE PRELOAD
 	    var crateImage = new Image();
 	    crateImage.onload = function() {

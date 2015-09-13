@@ -27,7 +27,7 @@ module.exports = function(grunt) {
             requirejs: {
                 files: [
                     { expand: true, cwd: 'node_modules/grunt-contrib-requirejs/node_modules/requirejs/', src: ['require.js'], dest: 'public/js/' },
-                    { expand: true, cwd: 'src/', src: ['js/extern/gl-matrix-min.js'], dest: 'public/' }
+                    { expand: true, cwd: 'src/', src: ['js/extern/gl-matrix-min.js', 'js/extern/dat.gui.min.js'], dest: 'public/' }
                 ]
             }
         },

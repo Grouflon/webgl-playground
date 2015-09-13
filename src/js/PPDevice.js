@@ -191,6 +191,7 @@ define([
 			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture);
 			gl.activeTexture(gl.TEXTURE1);
 			gl.bindTexture(gl.TEXTURE_2D, this._asciiRampTexture);
+			gl.uniform1i(gl.getUniformLocation(glPpShaderProgram, "uEnabled"), this.asciify);
 			gl.uniform1i(gl.getUniformLocation(glPpShaderProgram, "uSampler"), 0);
 			gl.uniform1i(gl.getUniformLocation(glPpShaderProgram, "uAsciiSampler"), 1);
 			gl.uniform2fv(gl.getUniformLocation(glPpShaderProgram, "uScreenSize"), [this.width, this.height]);
@@ -204,11 +205,15 @@ define([
 			gl.vertexAttribPointer(gl.getAttribLocation(glCrtShaderProgram, "aPosition"), 2, gl.FLOAT, false, 0, 0);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture2);
+			gl.uniform1i(gl.getUniformLocation(glCrtShaderProgram, "uEnabled"), this.crt);
 			gl.uniform1i(gl.getUniformLocation(glCrtShaderProgram, "uSampler"), 0);
 			gl.uniform2fv(gl.getUniformLocation(glCrtShaderProgram, "uScreenSize"), [this.width, this.height]);
 			gl.uniform1f(gl.getUniformLocation(glCrtShaderProgram, "uGlobalTime"), this.globalTime);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		};
+
+		PPDevice.prototype.asciify = true;
+		PPDevice.prototype.crt = true;
 
 		PPDevice.prototype._defaultShaderProgram = null;
 		PPDevice.prototype._ppShaderProgram = null;

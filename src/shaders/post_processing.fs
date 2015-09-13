@@ -1,5 +1,6 @@
 precision highp float;
 
+uniform bool uEnabled;
 uniform vec2 uScreenSize;
 uniform sampler2D uSampler;
 uniform sampler2D uAsciiSampler;
@@ -50,8 +51,11 @@ vec4 asciify(float gray, vec2 cellPosition)
 void main(void)
 {
 	gl_FragColor = texture2D(uSampler, gl_FragCoord.xy / uScreenSize);
-	vec4 pixelColor = pixelSample(gl_FragCoord.xy);
-	float gray = grayify(pixelColor);
-	gl_FragColor = asciify(gray, mod(gl_FragCoord.xy, vec2(xStep, yStep)));
-	gl_FragColor *= vec4(0.3, 1.0, 0.5, 1.0);
+	if (uEnabled)
+	{
+		vec4 pixelColor = pixelSample(gl_FragCoord.xy);
+    	float gray = grayify(pixelColor);
+    	gl_FragColor = asciify(gray, mod(gl_FragCoord.xy, vec2(xStep, yStep)));
+    	gl_FragColor *= vec4(0.3, 1.0, 0.5, 1.0);
+	}
 }
