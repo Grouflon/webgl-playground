@@ -10,7 +10,7 @@ uniform mat3 uNormal;
 
 uniform vec3 uAmbientColor;
 uniform vec3 uLightColor;
-uniform vec3 uLightDirection;
+uniform vec3 uLightPosition;
 
 varying vec4 vColor;
 varying vec2 vTextureCoord;
@@ -19,13 +19,17 @@ varying vec3 vLightWeighting;
 void main(void)
 {
 	mat4 mv = uView * uModel;
-    gl_Position = uProj* mv * vec4(aPosition, 1.0);
+	vec4 boxPosition = mv * vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 mvPosition = mv * vec4(aPosition, 1.0);
+    gl_Position = uProj * mvPosition;
     vColor = aColor;
 //    vTextureCoord = aTexCoord;
 
-    //vec3 transformedNormal = uNormal * aNormal;
-    vec4 transformedNormal = mv * vec4(aNormal, 0.0);
-    vec4 transformedLightDirection = mv * vec4(uLightDirection, 0.0);
+    vec4 transformedNormal = normalize(mv * vec4(aNormal, 0.0));
+    vec4 transformedLightDirection = normalize((uView * vec4(uLightPosition, 1.0)) - boxPosition);
+
+
     float directionalLightWeighting = max(dot(transformedNormal.xyz, transformedLightDirection.xyz), 0.0);
-    vLightWeighting = uAmbientColor + uLightColor*directionalLightWeighting;
+    float maxLength = 12.0;
+    vLightWeighting = (uAmbientColor + uLightColor*directionalLightWeighting) * max(-length(boxPosition.xyz)/pow(maxLength, 2.0) + 1.0, 0.0);
 }

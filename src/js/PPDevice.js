@@ -16,7 +16,7 @@ define([
 
 		function PPDevice(canvas) {
 			Device.call(this, canvas);
-			this.asciiTint = [0.3*255, 1.0*255, 0.5*255];
+			this.asciiTint = [2, 204, 15];
 		}
 
 		PPDevice.prototype.load = function()
@@ -214,7 +214,7 @@ define([
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		};
 
-		PPDevice.prototype.asciify = false;
+		PPDevice.prototype.asciify = true;
 		PPDevice.prototype.crt = true;
 		PPDevice.prototype.asciiTint = null;
 

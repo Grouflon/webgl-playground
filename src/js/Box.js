@@ -186,7 +186,7 @@ define([
 			var uNormal = gl.getUniformLocation(shaderProgram, "uNormal");
 			var uAmbientColor = gl.getUniformLocation(shaderProgram, "uAmbientColor");
 			var uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
-			var uLightDirection = gl.getUniformLocation(shaderProgram, "uLightDirection");
+			var uLightPosition = gl.getUniformLocation(shaderProgram, "uLightPosition");
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._glVertexBuffer);
 			gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
@@ -215,9 +215,9 @@ define([
 			mat3.transpose(nMat, nMat);
 			gl.uniformMatrix3fv(uNormal, false, nMat);
 
-			gl.uniform3fv(uAmbientColor, [0.3, 0.3, 0.3]);
+			gl.uniform3fv(uAmbientColor, [0.0, 0.0, 0.0]);
 			gl.uniform3fv(uLightColor, [1.0, 1.0, 1.0]);
-			gl.uniform3fv(uLightDirection, [0.0, 0.1, 1.0]);
+			gl.uniform3fv(uLightPosition, observer.transform.getPosition());
 
 			gl.drawElements(gl.TRIANGLES, this._indices.length, gl.UNSIGNED_SHORT, 0);
 		};

@@ -35,6 +35,11 @@ define([
 
 		Observer.prototype.update = function(dt)
 		{
+			/*if (!Keyboard.check([Keys.SPACE]))
+			{
+				return;
+			}*/
+
 			var speed = 10.0;
 			var angularSpeed = 1.0;
 			var m = this.transform.getMatrix();
