@@ -17,8 +17,9 @@ define([
 
 			this._topBoxes = [];
 			this._bottomBoxes = [];
+			this._boxPool = [];
 			this._range = 10;
-			this._boxSize = 6.0;
+			this._boxSize = 12.0;
 			this._landscapeAmplitude = 40.0;
 			this._boxMinHeight = 2.0;
 			this._boxMaxHeight = 24.0;
@@ -132,15 +133,30 @@ define([
 		{
 			var boxX = this._center[0] - this._range + x;
 			var boxZ = this._center[1] - this._range + z;
-
-			var box = new Box(
-				boxX*this._boxSize,
-				top ? this._landscapeAmplitude*0.5 : -this._landscapeAmplitude*0.5,
-				boxZ*this._boxSize,
-				this._boxSize,
-				Math.random()*(this._boxMaxHeight - this._boxMinHeight) + this._boxMinHeight,
-				this._boxSize
-			);
+			var box = null;
+			if (this._boxPool.length)
+			{
+				box = this._boxPool.pop();
+				Box.call(box,
+						boxX*this._boxSize,
+						top ? this._landscapeAmplitude*0.5 : -this._landscapeAmplitude*0.5,
+						boxZ*this._boxSize,
+						this._boxSize,
+						Math.random()*(this._boxMaxHeight - this._boxMinHeight) + this._boxMinHeight,
+						this._boxSize
+				);
+			}
+			else
+			{
+				box = new Box(
+						boxX*this._boxSize,
+						top ? this._landscapeAmplitude*0.5 : -this._landscapeAmplitude*0.5,
+						boxZ*this._boxSize,
+						this._boxSize,
+						Math.random()*(this._boxMaxHeight - this._boxMinHeight) + this._boxMinHeight,
+						this._boxSize
+				);
+			}
 			(top ? this._topBoxes : this._bottomBoxes)[x*this._range*2 + z] = box;
 			box.load();
 			device.addGameObject(box);
@@ -154,6 +170,7 @@ define([
 			{
 				box.release();
 				device.removeGameObject(box);
+				this._boxPool.push(box);
 				this._topBoxes[x*this._range*2 + z] = null;
 			}
 
@@ -162,12 +179,14 @@ define([
 			{
 				box.release();
 				device.removeGameObject(box);
+				this._boxPool.push(box);
 				this._bottomBoxes[x*this._range*2 + z] = null;
 			}
 		};
 
 		LandscapeController.prototype._topBoxes = null;
 		LandscapeController.prototype._bottomBoxes = null;
+		LandscapeController.prototype._boxPool = null;
 		LandscapeController.prototype._range = 0.0;
 		LandscapeController.prototype._boxSize = 0.0;
 		LandscapeController.prototype._landscapeAmplitude = 0.0;
