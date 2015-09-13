@@ -16,6 +16,7 @@ define([
 
 		function PPDevice(canvas) {
 			Device.call(this, canvas);
+			this.asciiTint = [0.3*255, 1.0*255, 0.5*255];
 		}
 
 		PPDevice.prototype.load = function()
@@ -195,6 +196,7 @@ define([
 			gl.uniform1i(gl.getUniformLocation(glPpShaderProgram, "uSampler"), 0);
 			gl.uniform1i(gl.getUniformLocation(glPpShaderProgram, "uAsciiSampler"), 1);
 			gl.uniform2fv(gl.getUniformLocation(glPpShaderProgram, "uScreenSize"), [this.width, this.height]);
+			gl.uniform3fv(gl.getUniformLocation(glPpShaderProgram, "uAsciiTint"), [this.asciiTint[0] / 255, this.asciiTint[1] / 255, this.asciiTint[2] / 255]);;
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -214,6 +216,7 @@ define([
 
 		PPDevice.prototype.asciify = true;
 		PPDevice.prototype.crt = true;
+		PPDevice.prototype.asciiTint = null;
 
 		PPDevice.prototype._defaultShaderProgram = null;
 		PPDevice.prototype._ppShaderProgram = null;

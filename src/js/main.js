@@ -22,8 +22,12 @@ define([
 
 	    // GUI
 	    var gui = new dat.GUI();
-	    gui.add(device, "asciify");
-	    gui.add(device, "crt");
+	    var f1 = gui.addFolder('Post-processing');
+	    f1.add(device, "asciify");
+	    f1.addColor(device, "asciiTint");
+	    f1.add(device, "crt");
+	    f1.open();
+	    gui.close();
 
 		// CRAPPY IMAGE PRELOAD
 	    var crateImage = new Image();

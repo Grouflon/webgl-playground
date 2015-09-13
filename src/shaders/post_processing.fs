@@ -4,6 +4,7 @@ uniform bool uEnabled;
 uniform vec2 uScreenSize;
 uniform sampler2D uSampler;
 uniform sampler2D uAsciiSampler;
+uniform vec3 uAsciiTint;
 
 
 const float xStep = 8.0;
@@ -56,6 +57,6 @@ void main(void)
 		vec4 pixelColor = pixelSample(gl_FragCoord.xy);
     	float gray = grayify(pixelColor);
     	gl_FragColor = asciify(gray, mod(gl_FragCoord.xy, vec2(xStep, yStep)));
-    	gl_FragColor *= vec4(0.3, 1.0, 0.5, 1.0);
+    	gl_FragColor *= vec4(uAsciiTint, 1.0);
 	}
 }
