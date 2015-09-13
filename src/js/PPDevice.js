@@ -214,7 +214,7 @@ define([
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		};
 
-		PPDevice.prototype.asciify = true;
+		PPDevice.prototype.asciify = false;
 		PPDevice.prototype.crt = true;
 		PPDevice.prototype.asciiTint = null;
 

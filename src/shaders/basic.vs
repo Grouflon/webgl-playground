@@ -6,6 +6,7 @@ attribute vec3 aNormal;
 uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProj;
+uniform mat3 uNormal;
 
 uniform vec3 uAmbientColor;
 uniform vec3 uLightColor;
@@ -17,11 +18,14 @@ varying vec3 vLightWeighting;
 
 void main(void)
 {
-    gl_Position = uProj* uView * uModel * vec4(aPosition, 1.0);
+	mat4 mv = uView * uModel;
+    gl_Position = uProj* mv * vec4(aPosition, 1.0);
     vColor = aColor;
 //    vTextureCoord = aTexCoord;
 
-    vec4 transformedNormal = uModel * vec4(aNormal, 1.0);
-    float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightDirection), 0.0);
+    //vec3 transformedNormal = uNormal * aNormal;
+    vec4 transformedNormal = mv * vec4(aNormal, 0.0);
+    vec4 transformedLightDirection = mv * vec4(uLightDirection, 0.0);
+    float directionalLightWeighting = max(dot(transformedNormal.xyz, transformedLightDirection.xyz), 0.0);
     vLightWeighting = uAmbientColor + uLightColor*directionalLightWeighting;
 }

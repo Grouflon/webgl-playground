@@ -69,30 +69,30 @@ define([
 				1.0, 1.0, 1.0, 1.0,
 				1.0, 1.0, 1.0, 1.0,
 
-				0.2, 0.2, 0.2, 1.0,
-				0.2, 0.2, 0.2, 1.0,
-				0.2, 0.2, 0.2, 1.0,
-				0.2, 0.2, 0.2, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				0.8, 0.8, 0.8, 1.0,
-				0.8, 0.8, 0.8, 1.0,
-				0.8, 0.8, 0.8, 1.0,
-				0.8, 0.8, 0.8, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				0.3, 0.3, 0.3, 1.0,
-				0.3, 0.3, 0.3, 1.0,
-				0.3, 0.3, 0.3, 1.0,
-				0.3, 0.3, 0.3, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				0.6, 0.6, 0.6, 1.0,
-				0.6, 0.6, 0.6, 1.0,
-				0.6, 0.6, 0.6, 1.0,
-				0.6, 0.6, 0.6, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
 
-				0.4, 0.4, 0.4, 1.0,
-				0.4, 0.4, 0.4, 1.0,
-				0.4, 0.4, 0.4, 1.0,
-				0.4, 0.4, 0.4, 1.0
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0,
+				1.0, 1.0, 1.0, 1.0
 			];
 			this._normals = [
 				// FRONT
@@ -183,6 +183,7 @@ define([
 			var uModel = gl.getUniformLocation(shaderProgram, "uModel");
 			var uView = gl.getUniformLocation(shaderProgram, "uView");
 			var uProj = gl.getUniformLocation(shaderProgram, "uProj");
+			var uNormal = gl.getUniformLocation(shaderProgram, "uNormal");
 			var uAmbientColor = gl.getUniformLocation(shaderProgram, "uAmbientColor");
 			var uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
 			var uLightDirection = gl.getUniformLocation(shaderProgram, "uLightDirection");
@@ -198,16 +199,25 @@ define([
 
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer);
 
-			// CAMERA
 			var camera = observer.camera;
 			var viewport = camera.getViewport();
 			gl.viewport(viewport.x, viewport.y, viewport.w, viewport.h);
 			gl.uniformMatrix4fv(uModel, false, this.transform.getMatrix());
 			gl.uniformMatrix4fv(uView, false, camera.getViewMatrix());
 			gl.uniformMatrix4fv(uProj, false, camera.getProjMatrix());
+
+			// NORMAL MATRIX
+			var mvMat = mat4.create();
+			var nMat = mat3.create();
+			mat4.mul(mvMat, this.transform.getMatrix(), camera.getViewMatrix());
+			mat3.fromMat4(nMat, mvMat);
+			mat3.invert(nMat, nMat);
+			mat3.transpose(nMat, nMat);
+			gl.uniformMatrix3fv(uNormal, false, nMat);
+
 			gl.uniform3fv(uAmbientColor, [0.3, 0.3, 0.3]);
 			gl.uniform3fv(uLightColor, [1.0, 1.0, 1.0]);
-			gl.uniform3fv(uLightDirection, [1.0, -1.0, 1.0]);
+			gl.uniform3fv(uLightDirection, [0.0, 0.1, 1.0]);
 
 			gl.drawElements(gl.TRIANGLES, this._indices.length, gl.UNSIGNED_SHORT, 0);
 		};
