@@ -5,7 +5,7 @@ if (typeof define !== 'function') {
  * Box
  * ===================================*/
 define([
-		"engine/GameObject",
+		"engine/GameObject"
 	]
 	, function (GameObject)
 	{
@@ -14,7 +14,7 @@ define([
 		function Box(x, y, z, w, h, d, color) {
 			GameObject.call(this);
 
-			this.transform.setPosition(x, y, z);
+			this.transform.setPosition([x, y, z]);
 			this._w = w;
 			this._h = h;
 			this._d = d;

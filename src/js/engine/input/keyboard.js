@@ -105,8 +105,9 @@ define([
 		 */
 		Keyboard._onKeyUp = function(event)
         {
-			if (this._keysStates[event.keyCode.toString()]) {
-				this._keysReleased.push(event.keyCode);
+	        if (this._keysStates[event.keyCode.toString()])
+	        {
+		        this._keysReleased.push(event.keyCode);
 				this._keysStates[event.keyCode.toString()] = false;
 			}
 		};
@@ -119,7 +120,8 @@ define([
 		 */
 		Keyboard._onKeyDown = function(event)
         {
-			if (!this._keysStates[event.keyCode.toString()]) {
+			if (!this._keysStates[event.keyCode.toString()])
+			{
 				this._keysPressed.push(event.keyCode);
 				this._keysStates[event.keyCode.toString()] = true;
 			}

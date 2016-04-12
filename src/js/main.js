@@ -7,10 +7,10 @@ if (typeof define !== 'function') {
 define([
 		"PPDevice",
 		"engine/Camera",
-		"Box",
+		"MobileBox",
 		"PlayerController"
     ]
-	, function (PPDevice, Camera, Box, PlayerController)
+	, function (PPDevice, Camera, MobileBox, PlayerController)
     {
 	    var canvas = document.getElementById("glcanvas");
 
@@ -56,7 +56,7 @@ define([
 		    mat4.invert(m, m);
 		    camera.setViewMatrix(m);
 
-		    var box = new Box(0.0, 0.0, 0.5, 1.0, 1.0, 1.0, [0.0, 0.0, 1.0, 1.0]);
+		    var box = new MobileBox([0.0, 0.5, 0.0], 1.0, [0.0, 0.0, 1.0, 1.0]);
 		    box.load();
 		    device.addGameObject(box);
 

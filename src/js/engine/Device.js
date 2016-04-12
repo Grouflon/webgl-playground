@@ -50,6 +50,7 @@ define([
 		Device.prototype.update = function() {
 			Keyboard.reset();
 			Mouse.reset();
+			Keyboard.check(12);
 			var thisFrameTime = Date.now();
 			if (this._tabBlurred) {
 				this._elapsed = 0;

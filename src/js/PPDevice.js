@@ -53,17 +53,17 @@ define([
 			window.defaultShaderProgram = this._defaultShaderProgram;
 
 			var groundSize = 10000.0;
-			var groundColor = [0.0, 1.0, 1.0, 1.0];
+			var groundColor = [0.5, 0.5, 0.5, 1.0];
 			this._ground = {};
 			this._ground.vertexBuffer= gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.vertexBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-					-groundSize * 0.5, -groundSize * 0.5, 0.0,
-					groundSize * 0.5, -groundSize * 0.5, 0.0,
-					groundSize * 0.5, groundSize * 0.5, 0.0,
-					-groundSize * 0.5, -groundSize * 0.5, 0.0,
-					groundSize * 0.5, groundSize * 0.5, 0.0,
-					-groundSize * 0.5, groundSize * 0.5, 0.0
+					groundSize * 0.5, 0.0, groundSize * 0.5,
+					groundSize * 0.5, 0.0, -groundSize * 0.5,
+					-groundSize * 0.5, 0.0, -groundSize * 0.5,
+					-groundSize * 0.5, 0.0, groundSize * 0.5,
+					groundSize * 0.5, 0.0, groundSize * 0.5,
+					-groundSize * 0.5, 0.0, -groundSize * 0.5
 			]), gl.STATIC_DRAW);
 
 			this._ground.colorBuffer= gl.createBuffer();
@@ -80,12 +80,12 @@ define([
 			this._ground.normalBuffer= gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.normalBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-				0.0, 0.0, 1.0,
-				0.0, 0.0, 1.0,
-				0.0, 0.0, 1.0,
-				0.0, 0.0, 1.0,
-				0.0, 0.0, 1.0,
-				0.0, 0.0, 1.0
+				0.0, 1.0, 0.0,
+				0.0, 1.0, 0.0,
+				0.0, 1.0, 0.0,
+				0.0, 1.0, 0.0,
+				0.0, 1.0, 0.0,
+				0.0, 1.0, 0.0
 			]), gl.STATIC_DRAW);
 
 			this._ground.texCoordBuffer= gl.createBuffer();

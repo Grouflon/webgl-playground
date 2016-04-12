@@ -9,36 +9,34 @@ define([
 	, function ()
 	{
 		function Transform() {
-			this._position = [0,0,0];
-			this._rotation = [0,0,0];
-			this._scale = [1,1,1];
+			this._position = vec3.create();
+			this._rotation = quat.create();
+			this._scale = [1.0, 1.0, 1.0];
 			this._matrix = mat4.create();
-			this._regenMatrix = false;
+			this._dirty = false;
 		}
 
 		Transform.prototype.getPosition = function()
 		{
-			return [this._matrix[12], this._matrix[13], this._matrix[14]];
+			return vec3.clone(this._position);
 		};
 
-		Transform.prototype.setPosition = function(x, y, z)
+		Transform.prototype.setPosition = function(position)
 		{
-			this._matrix[12] = x;
-			this._matrix[13] = y;
-			this._matrix[14] = z;
+			vec3.copy(this._position, position);
+			this._dirty = true;
 		};
 
-		/*Transform.prototype.getRotation = function()
+		Transform.prototype.getRotation = function()
 		{
-			return vec3.clone(this._rotation);
+			return quat.clone(this._rotation);
 		};
 
-		Transform.prototype.setRotation = function(x, y, z)
+
+		Transform.prototype.setRotation = function(rotation)
 		{
-			this._rotation[0] = x;
-			this._rotation[1] = y;
-			this._rotation[2] = z;
-			this._regenMatrix = true;
+			quat.copy(this._rotation, rotation);
+			this._dirty = true;
 		};
 
 		Transform.prototype.getScale = function()
@@ -46,16 +44,20 @@ define([
 			return vec3.clone(this._scale);
 		};
 
-		Transform.prototype.setScale = function(x, y, z)
+		Transform.prototype.setScale = function(scale)
 		{
-			this._scale[0] = x;
-			this._scale[1] = y;
-			this._scale[2] = z;
-			this._regenMatrix = true;
-		};*/
+			vec3.copy(this._scale, scale);
+			this._dirty = true;
+		};
 
 		Transform.prototype.getMatrix = function()
 		{
+			if (this._dirty)
+			{
+				mat4.fromRotationTranslation(this._matrix, this._rotation, this._position);
+				mat4.scale(this._matrix, this._matrix, this._scale);
+				this._dirty = false;
+			}
 			return mat4.clone(this._matrix);
 		};
 
@@ -92,7 +94,7 @@ define([
 		Transform.prototype._rotation = null;
 		Transform.prototype._scale = null;
 		Transform.prototype._matrix = null;
-		Transform.prototype._regenMatrix = true;
+		Transform.prototype._dirty = true;
 
 		return Transform;
 	});
