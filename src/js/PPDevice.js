@@ -38,146 +38,140 @@ define([
 			});
 			defaultVs.load();
 			defaultFs.load();
-			this._defaultShaderPogram = new ShaderProgram(gl, defaultVs, defaultFs);
-			this._defaultShaderPogram.load();
-			var glDefaultShaderProgram = this._defaultShaderPogram.glShaderProgram;
+			this._defaultShaderProgram = new ShaderProgram(gl, defaultVs, defaultFs);
+			this._defaultShaderProgram.load();
+			var glDefaultShaderProgram = this._defaultShaderProgram.glShaderProgram;
 			gl.useProgram(glDefaultShaderProgram);
 			var aPosition = gl.getAttribLocation(glDefaultShaderProgram, "aPosition");
 			var aColor = gl.getAttribLocation(glDefaultShaderProgram, "aColor");
-		//	var aTexCoord = gl.getAttribLocation(glDefaultShaderProgram, "aTexCoord");
+			var aTexCoord = gl.getAttribLocation(glDefaultShaderProgram, "aTexCoord");
 			var aNormal = gl.getAttribLocation(glDefaultShaderProgram, "aNormal");
 			gl.enableVertexAttribArray(aPosition);
 			gl.enableVertexAttribArray(aColor);
-		//	gl.enableVertexAttribArray(aTexCoord);
+			gl.enableVertexAttribArray(aTexCoord);
 			gl.enableVertexAttribArray(aNormal);
-			window.defaultShaderPogram = this._defaultShaderPogram;
+			window.defaultShaderProgram = this._defaultShaderProgram;
 
-			// ASCII POST PROCESSING SHADER
-			var postProcessingVs = null;
-			FileUtils.loadFile("shaders/post_processing.vs", false, function(response)
-			{
-				postProcessingVs = new Shader(gl, Shader.VERTEX_SHADER, response);
-			});
-			var postProcessingFs = null;
-			FileUtils.loadFile("shaders/post_processing.fs", false, function(response)
-			{
-				postProcessingFs = new Shader(gl, Shader.FRAGMENT_SHADER, response);
-			});
-			postProcessingVs.load();
-			postProcessingFs.load();
-			this._ppShaderProgram = new ShaderProgram(gl, postProcessingVs, postProcessingFs);
-			this._ppShaderProgram.load();
-			var glPpShaderProgram = this._ppShaderProgram.glShaderProgram;
-			gl.useProgram(glPpShaderProgram);
-			gl.enableVertexAttribArray(gl.getAttribLocation(glPpShaderProgram, "aPosition"));
+			var groundSize = 10000.0;
+			var groundColor = [0.0, 1.0, 1.0, 1.0];
+			this._ground = {};
+			this._ground.vertexBuffer= gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.vertexBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+					-groundSize * 0.5, -groundSize * 0.5, 0.0,
+					groundSize * 0.5, -groundSize * 0.5, 0.0,
+					groundSize * 0.5, groundSize * 0.5, 0.0,
+					-groundSize * 0.5, -groundSize * 0.5, 0.0,
+					groundSize * 0.5, groundSize * 0.5, 0.0,
+					-groundSize * 0.5, groundSize * 0.5, 0.0
+			]), gl.STATIC_DRAW);
 
-			// CRT POST PROCESSING SHADER
-			var crtFs = null;
-			FileUtils.loadFile("shaders/crt.fs", false, function(response)
-			{
-				crtFs = new Shader(gl, Shader.FRAGMENT_SHADER, response);
-			});
-			crtFs.load();
-			this._crtShaderProgram = new ShaderProgram(gl, postProcessingVs, crtFs);
-			this._crtShaderProgram.load();
-			var glCrtShaderProgram = this._crtShaderProgram.glShaderProgram;
-			gl.useProgram(glCrtShaderProgram);
-			gl.enableVertexAttribArray(gl.getAttribLocation(glCrtShaderProgram, "aPosition"));
+			this._ground.colorBuffer= gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.colorBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+					groundColor[0], groundColor[1], groundColor[2], groundColor[3],
+					groundColor[0], groundColor[1], groundColor[2], groundColor[3],
+					groundColor[0], groundColor[1], groundColor[2], groundColor[3],
+					groundColor[0], groundColor[1], groundColor[2], groundColor[3],
+					groundColor[0], groundColor[1], groundColor[2], groundColor[3],
+					groundColor[0], groundColor[1], groundColor[2], groundColor[3]
+			]), gl.STATIC_DRAW);
 
-			// ASCII RAMP TEXTURE
-			this._asciiRampTexture = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, this._asciiRampTexture);
+			this._ground.normalBuffer= gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.normalBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+				0.0, 0.0, 1.0,
+				0.0, 0.0, 1.0,
+				0.0, 0.0, 1.0,
+				0.0, 0.0, 1.0,
+				0.0, 0.0, 1.0,
+				0.0, 0.0, 1.0
+			]), gl.STATIC_DRAW);
+
+			this._ground.texCoordBuffer= gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.texCoordBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+				-groundSize * 0.125, -groundSize * 0.125,
+				groundSize * 0.125, -groundSize * 0.125,
+				groundSize * 0.125, groundSize * 0.125,
+				-groundSize * 0.125, -groundSize * 0.125,
+				groundSize * 0.125, groundSize * 0.125,
+				-groundSize * 0.125, groundSize * 0.125
+			]), gl.STATIC_DRAW);
+
+			this._defaultTexture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, this._defaultTexture);
 			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, asciiRampImage);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, defaultTexture);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
-			// MID RENDER TARGET
-			this._loadFrameBuffers();
-			window.onresize = function() {
-				var wrapper = document.getElementById("canvas-wrapper");
-				this._canvas.width = wrapper.clientWidth;
-				this._canvas.height = wrapper.clientHeight;
-				this._resized = true;
-			}.bind(this);
-
-			// MID RENDER TARGET DATA
-			this._quadBuffer = gl.createBuffer();
-			var quadVertices = [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1];
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVertices), gl.STATIC_DRAW);
+			this._ground.texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, this._ground.texture);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, groundTexture);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		};
 
 		PPDevice.prototype.release = function()
 		{
-			this._releaseFrameBuffers();
 		};
-
-		PPDevice.prototype._loadFrameBuffers = function()
-		{
-			var gl = this.renderer.gl;
-
-			this._renderTexture = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-			this._frameBuffer = gl.createFramebuffer();
-			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._renderTexture, 0);
-			this._renderBuffer = gl.createRenderbuffer();
-			gl.bindRenderbuffer(gl.RENDERBUFFER, this._renderBuffer);
-			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
-			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._renderBuffer);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			this._renderTexture2 = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, this._renderTexture2);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-			this._frameBuffer2 = gl.createFramebuffer();
-			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer2);
-			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._renderTexture2, 0);
-			this._renderBuffer2 = gl.createRenderbuffer();
-			gl.bindRenderbuffer(gl.RENDERBUFFER, this._renderBuffer2);
-			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
-			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._renderBuffer2);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		};
-
-		PPDevice.prototype._releaseFrameBuffers = function()
-		{
-			var gl = this.renderer.gl;
-			gl.deleteFramebuffer(this._frameBuffer);
-			gl.deleteFramebuffer(this._frameBuffer2);
-			gl.deleteRenderbuffer(this._renderBuffer);
-			gl.deleteRenderbuffer(this._renderBuffer2);
-			gl.deleteTexture(this._renderTexture);
-			gl.deleteTexture(this._renderTexture2);
-			this._frameBuffer = null;
-			this._frameBuffer2 = null;
-			this._renderBuffer = null;
-			this._renderBuffer2 = null;
-			this._renderTexture = null;
-			this._renderTexture2 = null;
-		};
-
-		PPDevice.prototype._reloadFrameBuffers = function()
-		{
-			this._releaseFrameBuffers();
-			this._loadFrameBuffers();
-		}
 
 		PPDevice.prototype.draw = function(gl)
 		{
-			if (this._resized)
-				this._reloadFrameBuffers();
+			gl.enable(gl.DEPTH_TEST);
+			gl.enable(gl.CULL_FACE);
+			var viewport = camera.getViewport();
+			gl.viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+			gl.clearColor(0.5, 0.1, 0.1, 1.0);
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+			var shaderProgram = defaultShaderProgram.glShaderProgram;
+			gl.useProgram(shaderProgram);
+
+			var uView = gl.getUniformLocation(shaderProgram, "uView");
+			var uProj = gl.getUniformLocation(shaderProgram, "uProj");
+			var uAmbientColor = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+			var uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
+			var uLightDirection = gl.getUniformLocation(shaderProgram, "uLightDirection");
+			var uModel = gl.getUniformLocation(shaderProgram, "uModel");
+			var uSampler = gl.getUniformLocation(shaderProgram, "uSampler");
+			gl.uniformMatrix4fv(uView, false, camera.getViewMatrix());
+			gl.uniformMatrix4fv(uProj, false, camera.getProjMatrix());
+			gl.uniformMatrix4fv(uModel, false, mat4.create());
+			gl.uniform3fv(uAmbientColor, [0.6, 0.6, 0.6]);
+			gl.uniform3fv(uLightColor, [1.0, 1.0, 1.0]);
+			gl.uniform3fv(uLightDirection, [0.3, 0.8, 0.6]);
+			gl.uniform1i(uSampler, 0);
+
+			var aPosition = gl.getAttribLocation(shaderProgram, "aPosition");
+			var aColor = gl.getAttribLocation(shaderProgram, "aColor");
+			var aNormal = gl.getAttribLocation(shaderProgram, "aNormal");
+			var aTexCoord = gl.getAttribLocation(shaderProgram, "aTexCoord");
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.vertexBuffer);
+			gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.colorBuffer);
+			gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, 0, 0);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.normalBuffer);
+			gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._ground.texCoordBuffer);
+			gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, 0, 0);
+
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, this._ground.texture);
+
+			this.renderer.clear();
+
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+			gl.bindTexture(gl.TEXTURE_2D, this._defaultTexture);
+
+			Device.prototype.draw.call(this, gl);
+
+			/*gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 
 			this.renderer.clear();
 			Device.prototype.draw.call(this, gl);
@@ -211,14 +205,17 @@ define([
 			gl.uniform1i(gl.getUniformLocation(glCrtShaderProgram, "uSampler"), 0);
 			gl.uniform2fv(gl.getUniformLocation(glCrtShaderProgram, "uScreenSize"), [this.width, this.height]);
 			gl.uniform1f(gl.getUniformLocation(glCrtShaderProgram, "uGlobalTime"), this.globalTime);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);*/
 		};
+
+		PPDevice.prototype._ground = null;
+		PPDevice.prototype._defaultTexture = null;
+		PPDevice.prototype._defaultShaderProgram = null;
 
 		PPDevice.prototype.asciify = true;
 		PPDevice.prototype.crt = true;
 		PPDevice.prototype.asciiTint = null;
 
-		PPDevice.prototype._defaultShaderProgram = null;
 		PPDevice.prototype._ppShaderProgram = null;
 		PPDevice.prototype._crtShaderProgram = null;
 

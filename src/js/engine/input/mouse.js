@@ -48,7 +48,7 @@ define([
 		Mouse._onMove = function(event)
         {
             this._position[0] = this.x = event.clientX - this._canvas.offsetLeft;
-            this._position[0] = this.y = event.clientY - this._canvas.offsetTop;
+            this._position[1] = this.y = event.clientY - this._canvas.offsetTop;
 			this._hasMoved = true;
 		};
 

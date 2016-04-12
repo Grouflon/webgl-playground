@@ -6,56 +6,67 @@ if (typeof define !== 'function') {
  * ===================================*/
 define([
 		"PPDevice",
-		"LandscapeController",
-		"Observer"
+		"engine/Camera",
+		"Box",
+		"PlayerController"
     ]
-	, function (PPDevice, LandscapeController, Observer)
+	, function (PPDevice, Camera, Box, PlayerController)
     {
-	    // DEVICE
 	    var canvas = document.getElementById("glcanvas");
-	    var device = new PPDevice(canvas);
-	    window.device = device;
+
+	    // GLOBAL
+	    window.device = new PPDevice(canvas);
+	    window.camera = new Camera();
+	    window.defaultTexture = new Image();
+	    window.groundTexture = new Image();
+
 
 	    var wrapper = document.getElementById("canvas-wrapper");
 	    canvas.width = wrapper.clientWidth;
 	    canvas.height = wrapper.clientHeight;
 
 	    // GUI
-	    var gui = new dat.GUI();
+	    /*var gui = new dat.GUI();
 	    var f1 = gui.addFolder('Post-processing');
 	    f1.add(device, "asciify");
 	    f1.addColor(device, "asciiTint");
 	    f1.add(device, "crt");
 	    f1.open();
-	    gui.close();
+	    gui.close();*/
+
+
+	    /*for (var x = -2; x < 3; ++x)
+	    for (var y = -2; y < 3; ++y)
+	    for (var z = -2; z < 3; ++z)
+	    {
+		    var box = new Box(x * 2.0, y * 2.0, z * 2.0, 1.0, 1.0, 1.0);
+		    box.load();
+		    device.addGameObject(box);
+	    }*/
 
 		// CRAPPY IMAGE PRELOAD
-	    var crateImage = new Image();
-	    crateImage.onload = function() {
-		    var asciiRampImage = new Image();
-		    asciiRampImage.onload = function() {
+	    defaultTexture.onload = function() {
+		groundTexture.onload = function() {
 
-			    device.load();
+		    device.load();
+		    camera.set(45.0, device.width / device.height, 0.1, 100.0);
+		    camera.setViewport(0.0, 0.0, device.width, device.height);
+		    var m = mat4.create();
+		    mat4.translate(m, m, [0.0, 0.0, 0.0]);
+		    mat4.invert(m, m);
+		    camera.setViewMatrix(m);
 
-			    var observer = new Observer(0.0, 0.0, 7.0);
-			    observer.load();
-			    device.addGameObject(observer);
-			    window.observer = observer;
+		    var box = new Box(0.0, 0.0, 0.5, 1.0, 1.0, 1.0, [0.0, 0.0, 1.0, 1.0]);
+		    box.load();
+		    device.addGameObject(box);
 
-			    var lc = new LandscapeController();
-			    window.landscape = lc;
-			    lc.load();
-			    device.addGameObject(lc);
+		    var playerController = new PlayerController();
+		    playerController.setTarget(box);
+		    device.addGameObject(playerController);
+		    device.start();
 
-			    device.start();
-
-		    };
-		    asciiRampImage.src = "images/ascii_ramp.png";
-		    window.asciiRampImage = asciiRampImage;
 	    };
-	    crateImage.src = "images/crate.gif";
-	    window.crateImage = crateImage;
-
-
-
+	    };
+	    defaultTexture.src = "images/white16x16.png";
+	    groundTexture.src = "images/ground.png";
 	});
